@@ -1,0 +1,19 @@
+import React from 'react'
+import { Outlet } from 'react-router-dom'
+import { Layout } from 'antd'
+import Sidebar from './Sidebar'
+
+const { Content } = Layout
+
+const ChatApp = () => {
+    return (
+        <Layout className="h-screen w-screen overflow-hidden bg-[#F8F9FE] flex flex-row">
+            <Sidebar />
+            <Content className="flex-1 overflow-y-auto">
+                <Outlet />
+            </Content>
+        </Layout>
+    )
+}
+
+export default ChatApp
