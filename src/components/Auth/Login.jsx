@@ -45,7 +45,7 @@ const ensureUserDocs = async (user) => {
         await setDoc(userRef, {
             userId: user.uid,
             email: user.email ?? '',
-            password: '',             // OAuth không có password
+            password: '',
             createdAt: serverTimestamp(),
         })
     }
@@ -98,6 +98,7 @@ const Login = () => {
     const handleGoogleLogin = async () => {
         const provider = new GoogleAuthProvider()
         setError('')
+        setLoading(true)
         try {
             const { user } = await signInWithPopup(auth, provider)
             await ensureUserDocs(user)   // tự set status online bên trong
@@ -105,6 +106,8 @@ const Login = () => {
         } catch (err) {
             console.error('Google login error:', err)
             setError('Lỗi đăng nhập bằng Google')
+        } finally {
+            setLoading(false)
         }
     }
 
@@ -112,6 +115,7 @@ const Login = () => {
     const handleFacebookLogin = async () => {
         const provider = new FacebookAuthProvider()
         setError('')
+        setLoading(true)
         try {
             const { user } = await signInWithPopup(auth, provider)
             await ensureUserDocs(user)   // tự set status online bên trong
@@ -119,6 +123,8 @@ const Login = () => {
         } catch (err) {
             console.error('Facebook login error:', err)
             setError('Lỗi đăng nhập bằng Facebook')
+        } finally {
+            setLoading(false)
         }
     }
 
@@ -170,7 +176,7 @@ const Login = () => {
 
                         <Form.Item
                             label={
-                                <div className="flex justify-between w-full">
+                                <div className="flex justify-between w-full min-w-[320px]">
                                     <Text className="text-[10px] font-bold text-gray-500 tracking-wider uppercase">Mật khẩu</Text>
                                     <Link to="#" className="text-xs text-[#5B5CE2] hover:underline font-medium">Quên mật khẩu?</Link>
                                 </div>
@@ -205,6 +211,7 @@ const Login = () => {
                     <div className="grid grid-cols-2 gap-4 mb-6">
                         <Button
                             onClick={handleGoogleLogin}
+                            loading={loading}
                             className="h-12 bg-[#EEF0FF] text-[#5B5CE2] border-none rounded-xl text-sm font-semibold hover:bg-blue-100 flex items-center justify-center gap-2"
                         >
                             <img src="https://www.svgrepo.com/show/475656/google-color.svg" className="w-5 h-5" alt="Google" />
@@ -212,6 +219,7 @@ const Login = () => {
                         </Button>
                         <Button
                             onClick={handleFacebookLogin}
+                            loading={loading}
                             className="h-12 bg-[#1877F2] text-white border-none rounded-xl text-sm font-semibold hover:bg-blue-600 flex items-center justify-center gap-2"
                         >
                             <img src="https://www.svgrepo.com/show/475647/facebook-color.svg" className="w-5 h-5 brightness-0 invert" alt="Facebook" />
