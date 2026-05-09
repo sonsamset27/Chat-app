@@ -11,8 +11,8 @@ const Settings = () => {
         <div className="h-full flex flex-col bg-[#F8F9FE] dark:bg-[#1a1b26] rounded-tl-[30px] shadow-sm overflow-hidden border border-gray-100 dark:border-gray-800 transition-colors duration-300">
             {/* Header */}
             <div className="px-8 py-6 border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-[#24283b] transition-colors duration-300">
-                <Title level={3} className="mb-1! dark:text-white">Cài đặt</Title>
-                <Text type="secondary" className="dark:text-gray-400">Quản lý tùy chọn và cài đặt tài khoản của bạn</Text>
+                <Title level={3} className="mb-1!">Cài đặt</Title>
+                <Text type="secondary">Quản lý tùy chọn và cài đặt tài khoản của bạn</Text>
             </div>
 
             <div className="flex-1 flex overflow-hidden">
@@ -22,8 +22,8 @@ const Settings = () => {
                 </div>
 
                 {/* Content Area */}
-                <div className="flex-1 overflow-y-auto p-8 flex justify-center ">
-                    <div className="max-w-2xl">
+                <div className="flex-1 overflow-y-auto p-8 flex justify-center">
+                    <div className="max-w-2xl w-full">
                         <Outlet />
                     </div>
                 </div>

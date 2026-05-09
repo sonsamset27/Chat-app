@@ -6,6 +6,7 @@ import { db, auth } from '../../../../firebase/config'
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage'
 import { doc, updateDoc } from 'firebase/firestore'
 import { updateProfile, deleteUser } from 'firebase/auth'
+import useUploadImage from '../../../../hooks/useUploadImage'
 
 const { Title, Text } = Typography
 const storage = getStorage()
@@ -19,6 +20,7 @@ const SettingAccount = () => {
     const [uploadingAvatar, setUploadingAvatar] = useState(false)
     const fileInputRef = useRef(null)
     const [messageApi, contextHolder] = message.useMessage()
+    const { uploadImage } = useUploadImage()
 
     useEffect(() => {
         if (userProfile || currentUser) {
@@ -51,10 +53,7 @@ const SettingAccount = () => {
         if (!avatarFile || !currentUser) return
         setUploadingAvatar(true)
         try {
-            const path = `avatars/${currentUser.uid}`
-            const ref = storageRef(storage, path)
-            await uploadBytes(ref, avatarFile)
-            const url = await getDownloadURL(ref)
+            const url = await uploadImage(avatarFile)
             await updateDoc(doc(db, 'PROFILES', currentUser.uid), { avatar: url })
             setAvatarFile(null)
             messageApi.success('Ảnh đại diện đã được cập nhật!')
@@ -146,8 +145,8 @@ const SettingAccount = () => {
     return (
         <div className="space-y-6">
             {contextHolder}
-            <Card className="rounded-2xl shadow-sm border-none dark:bg-[#24283b] transition-colors duration-300" styles={{ body: { padding: '24px' } }}>
-                <Title level={5} className="mb-6! dark:text-white">Hồ sơ công khai</Title>
+            <Card className="rounded-2xl shadow-sm border-none transition-colors duration-300" styles={{ body: { padding: '24px' } }}>
+                <Title level={5} className="mb-6!">Hồ sơ công khai</Title>
 
                 <div className="flex items-center gap-6 mb-8">
                     <div className="relative">
@@ -194,7 +193,7 @@ const SettingAccount = () => {
                         )}
                         {avatarFile && (
                             <Button
-                                className="rounded-xl font-medium text-gray-600 dark:text-gray-300"
+                                className="rounded-xl font-medium"
                                 onClick={() => { setAvatarFile(null); setAvatarPreview(null) }}
                             >
                                 Hủy
@@ -202,7 +201,7 @@ const SettingAccount = () => {
                         )}
                         {!avatarFile && currentAvatarUrl && (
                             <Button
-                                className="rounded-xl font-medium text-gray-600 dark:text-gray-300"
+                                className="rounded-xl font-medium"
                                 icon={<Trash2 size={14} />}
                                 onClick={handleDeleteAvatar}
                             >
@@ -218,24 +217,24 @@ const SettingAccount = () => {
                     onFinish={handleSaveProfile}
                 >
                     <Form.Item
-                        label={<span className="dark:text-gray-300">Họ và tên</span>}
+                        label="Họ và tên"
                         name="name"
                         rules={[{ required: true, message: 'Vui lòng nhập họ và tên!' }]}
                     >
-                        <Input size="large" className="rounded-xl bg-[#F8F9FE] dark:bg-[#1a1b26] border-gray-100 dark:border-gray-800 dark:text-white transition-colors duration-300" />
+                        <Input size="large" className="rounded-xl bg-[#F8F9FE] dark:bg-[#1a1b26] border-gray-100 dark:border-gray-800 transition-colors duration-300" />
                     </Form.Item>
-                    <Form.Item label={<span className="dark:text-gray-300">Email</span>}>
+                    <Form.Item label="Email">
                         <Input
                             size="large"
                             value={currentUser?.email || ''}
                             disabled
-                            className="rounded-xl bg-[#F8F9FE] dark:bg-[#1a1b26] border-gray-100 dark:border-gray-800 dark:text-gray-400 transition-colors duration-300"
+                            className="rounded-xl bg-[#F8F9FE] dark:bg-[#1a1b26] border-gray-100 dark:border-gray-800 transition-colors duration-300"
                         />
                     </Form.Item>
-                    <Form.Item label={<span className="dark:text-gray-300">Tiểu sử</span>} name="bio">
+                    <Form.Item label="Tiểu sử" name="bio">
                         <Input.TextArea
                             rows={4}
-                            className="rounded-xl bg-[#F8F9FE] dark:bg-[#1a1b26] border-gray-100 dark:border-gray-800 dark:text-white resize-none transition-colors duration-300"
+                            className="rounded-xl bg-[#F8F9FE] dark:bg-[#1a1b26] border-gray-100 dark:border-gray-800 resize-none transition-colors duration-300"
                             placeholder="Viết một chút về bản thân bạn..."
                             maxLength={200}
                             showCount
@@ -257,11 +256,11 @@ const SettingAccount = () => {
             </Card>
 
             <Card
-                className="rounded-2xl shadow-sm border-red-100 dark:border-red-900 dark:bg-[#24283b] transition-colors duration-300"
+                className="rounded-2xl shadow-sm border-red-100 dark:border-red-900 transition-colors duration-300"
                 styles={{ body: { padding: '24px' } }}
             >
                 <Title level={5} className="mb-2! text-red-500">Xóa tài khoản</Title>
-                <Text className="block mb-4 text-gray-500 dark:text-gray-400">
+                <Text className="block mb-4 text-gray-500">
                     Một khi bạn xóa tài khoản của mình, không thể khôi phục lại dữ liệu. Hãy chắc chắn.
                 </Text>
                 <Button

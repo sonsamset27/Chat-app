@@ -20,7 +20,7 @@ const Profile = () => {
             {/* Content */}
             <div className="flex flex-col gap-3 p-8">
                 {/* Main Profile Card */}
-                <Card className="rounded-3xl shadow-sm mb-6 border-gray-100 dark:border-gray-800 dark:bg-[#24283b] transition-colors duration-300" styles={{ body: { padding: '32px' } }}>
+                <Card className="rounded-3xl shadow-sm mb-6 border-gray-100 dark:border-gray-800 transition-colors duration-300" styles={{ body: { padding: '32px' } }}>
                     <div className="flex justify-between items-start mb-6">
                         <Space size="large" align="start">
                             <Badge dot status={status === 'online' ? 'success' : 'default'} offset={[-8, 85]}>
@@ -29,8 +29,8 @@ const Profile = () => {
                                 </Avatar>
                             </Badge>
                             <div className="pt-2">
-                                <Title level={3} className="mb-1! dark:text-white">{displayName}</Title>
-                                <Text type="secondary" className="text-sm dark:text-gray-400">
+                                <Title level={3} className="mb-1!">{displayName}</Title>
+                                <Text type="secondary" className="text-sm">
                                     {status === 'online' ? 'Đang hoạt động' : 'Ngoại tuyến'} • {email}
                                 </Text>
                             </div>
@@ -38,7 +38,7 @@ const Profile = () => {
                     </div>
 
                     <div>
-                        <Title level={5} className="mb-2! dark:text-white">Tiểu sử</Title>
+                        <Title level={5} className="mb-2!">Tiểu sử</Title>
                         <Paragraph className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed mb-0">
                             {bio}
                         </Paragraph>
@@ -46,59 +46,32 @@ const Profile = () => {
                 </Card>
 
                 {/* Mutual Friends */}
-                <Card className="rounded-3xl shadow-sm border-gray-100 dark:border-gray-800 dark:bg-[#24283b] transition-colors duration-300" styles={{ body: { padding: '24px' } }}>
-                    <Title level={5} className="mb-4! dark:text-white">Bạn bè</Title>
+                <Card className="rounded-3xl shadow-sm border-gray-100 dark:border-gray-800 transition-colors duration-300" styles={{ body: { padding: '24px' } }}>
+                    <Title level={5} className="mb-4!">Bạn bè</Title>
                     <Space orientation="vertical" size="middle" className="w-full mb-4 overflow-auto max-h-[250px]">
-                        <div className="flex items-center justify-between">
-                            <Space size="middle">
-                                <Avatar src="https://i.pravatar.cc/150?img=5" size={40} />
-                                <div>
-                                    <Text strong className="block text-sm dark:text-gray-200">Lan Anh</Text>
-                                    <Text type="secondary" className="text-[10px] dark:text-gray-400">Đã kết nối 2 năm</Text>
-                                </div>
-                            </Space>
-                            <Space size="middle">
-                                <Button type="text" icon={<MessageSquarePlus size={18} />} className="text-gray-400 hover:text-[#5B5CE2] hover:bg-blue-50 dark:hover:bg-blue-900/30" />
-                                <Button className="rounded-lg text-xs font-bold text-gray-600 dark:text-gray-300 dark:bg-gray-800 dark:border-gray-700">
-                                    Trang cá nhân
-                                </Button>
-                            </Space>
-                        </div>
-                        <div className="flex items-center justify-between">
-                            <Space size="middle">
-                                <Avatar src="https://i.pravatar.cc/150?img=12" size={40} />
-                                <div>
-                                    <Text strong className="block text-sm dark:text-gray-200">Quốc Bảo</Text>
-                                    <Text type="secondary" className="text-[10px] dark:text-gray-400">Đã kết nối 6 tháng</Text>
-                                </div>
-                            </Space>
-                            <Space size="middle">
-                                <Button type="text" icon={<MessageSquarePlus size={18} />} className="text-gray-400 hover:text-[#5B5CE2] hover:bg-blue-50 dark:hover:bg-blue-900/30" />
-                                <Button className="rounded-lg text-xs font-bold text-gray-600 dark:text-gray-300 dark:bg-gray-800 dark:border-gray-700">
-                                    Trang cá nhân
-                                </Button>
-                            </Space>
-                        </div>
-                        <div className="flex items-center justify-between">
-                            <Space size="middle">
-                                <Avatar src="https://i.pravatar.cc/150?img=12" size={40} />
-                                <div>
-                                    <Text strong className="block text-sm dark:text-gray-200">Quốc Bảo</Text>
-                                    <Text type="secondary" className="text-[10px] dark:text-gray-400">Đã kết nối 6 tháng</Text>
-                                </div>
-                            </Space>
-                            <Space size="middle">
-                                <Button type="text" icon={<MessageSquarePlus size={18} />} className="text-gray-400 hover:text-[#5B5CE2] hover:bg-blue-50 dark:hover:bg-blue-900/30" />
-                                <Button className="rounded-lg text-xs font-bold text-gray-600 dark:text-gray-300 dark:bg-gray-800 dark:border-gray-700">
-                                    Trang cá nhân
-                                </Button>
-                            </Space>
-                        </div>
-
+                        {[
+                            { name: 'Lan Anh', time: 'Đã kết nối 2 năm', img: 5 },
+                            { name: 'Quốc Bảo', time: 'Đã kết nối 6 tháng', img: 12 },
+                            { name: 'Quốc Bảo', time: 'Đã kết nối 6 tháng', img: 12 }
+                        ].map((friend, idx) => (
+                            <div key={idx} className="flex items-center justify-between">
+                                <Space size="middle">
+                                    <Avatar src={`https://i.pravatar.cc/150?img=${friend.img}`} size={40} />
+                                    <div>
+                                        <Text strong className="block text-sm">{friend.name}</Text>
+                                        <Text type="secondary" className="text-[10px]">{friend.time}</Text>
+                                    </div>
+                                </Space>
+                                <Space size="middle">
+                                    <Button type="text" icon={<MessageSquarePlus size={18} />} className="text-gray-400 hover:text-[#5B5CE2] hover:bg-blue-50 dark:hover:bg-blue-900/30" />
+                                    <Button className="rounded-lg text-xs font-bold text-gray-600 dark:text-gray-300">
+                                        Trang cá nhân
+                                    </Button>
+                                </Space>
+                            </div>
+                        ))}
                     </Space>
-
                 </Card>
-
             </div>
         </div>
     )

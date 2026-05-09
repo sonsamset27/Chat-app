@@ -6,7 +6,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 const SettingBar = () => {
     const navigate = useNavigate()
     const location = useLocation()
-
+    
     const activeTab = location.pathname.split('/').pop() || 'account'
 
     const menuItems = [
@@ -23,7 +23,7 @@ const SettingBar = () => {
             selectedKeys={[activeTab]}
             onClick={({ key }) => navigate(`/settings/${key}`)}
             items={menuItems}
-            className="border-none rounded-2xl bg-transparent custom-settings-menu dark:text-gray-300 dark:bg-transparent"
+            className="border-none rounded-2xl bg-transparent custom-settings-menu"
         />
     )
 }

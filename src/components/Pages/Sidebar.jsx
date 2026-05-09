@@ -42,7 +42,7 @@ const Sidebar = () => {
     ]
 
     return (
-        <Sider width={280} className="h-full bg-[#F8F9FE] dark:bg-[#1a1b26] border-r border-gray-100 dark:border-gray-800 flex flex-col transition-colors duration-300" theme="light">
+        <Sider width={280} theme="light" className="h-full border-r border-gray-100 dark:border-gray-800 flex flex-col transition-colors duration-300">
             <div className="flex flex-col h-full">
                 {/* Logo area */}
                 <div className="p-6 pb-2">
@@ -61,10 +61,10 @@ const Sidebar = () => {
                         {(userProfile?.name || currentUser?.displayName || 'U').charAt(0).toUpperCase()}
                     </Avatar>
                     <div className="flex-1 min-w-0">
-                        <Text strong className="block text-sm truncate dark:text-gray-200">
+                        <Text strong className="block text-sm truncate">
                             {userProfile?.name || currentUser?.displayName || 'Người dùng'}
                         </Text>
-                        <Text type="secondary" className="block text-xs truncate dark:text-gray-400">
+                        <Text type="secondary" className="block text-xs truncate">
                             {currentUser?.email || ''}
                         </Text>
                     </div>
@@ -77,13 +77,12 @@ const Sidebar = () => {
                         selectedKeys={[location.pathname.startsWith('/settings') ? '/settings' : location.pathname]}
                         onClick={({ key }) => navigate(key)}
                         items={navItems}
-                        className="bg-transparent border-none custom-sidebar-menu dark:text-gray-300 dark:bg-transparent"
+                        className="bg-transparent border-none custom-sidebar-menu"
                     />
                 </div>
 
                 {/* Bottom Status / Logout */}
                 <div className="p-6 space-y-3">
-
                     <button
                         onClick={handleLogout}
                         className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold text-red-500 bg-red-50 hover:bg-red-100 dark:bg-red-900/30 dark:hover:bg-red-900/50 transition-colors border-none cursor-pointer"

@@ -5,17 +5,17 @@ const { Title, Text } = Typography
 
 const SettingNoti = () => {
     return (
-        <Card className="rounded-2xl shadow-sm border-none dark:bg-[#24283b] transition-colors duration-300" styles={{ body: { padding: '24px' } }}>
-            <Title level={5} className="mb-6! dark:text-white">Tùy chọn thông báo</Title>
+        <Card className="rounded-2xl shadow-sm border-none transition-colors duration-300" styles={{ body: { padding: '24px' } }}>
+            <Title level={5} className="mb-6!">Tùy chọn thông báo</Title>
             <Form layout="horizontal" labelCol={{ span: 20 }} wrapperCol={{ span: 4 }}>
                 <div className="space-y-4">
-                    <Form.Item label={<Text strong className="dark:text-gray-300">Thông báo đẩy</Text>} className="mb-0 flex justify-between">
+                    <Form.Item label={<Text strong>Thông báo đẩy</Text>} className="mb-0 flex justify-between">
                         <Switch defaultChecked />
                     </Form.Item>
-                    <Form.Item label={<Text strong className="dark:text-gray-300">Email tóm tắt hàng tuần</Text>} className="mb-0 flex justify-between">
+                    <Form.Item label={<Text strong>Email tóm tắt hàng tuần</Text>} className="mb-0 flex justify-between">
                         <Switch defaultChecked />
                     </Form.Item>
-                    <Form.Item label={<Text strong className="dark:text-gray-300">Âm thanh tin nhắn mới</Text>} className="mb-0 flex justify-between">
+                    <Form.Item label={<Text strong>Âm thanh tin nhắn mới</Text>} className="mb-0 flex justify-between">
                         <Switch />
                     </Form.Item>
                 </div>

@@ -16,7 +16,7 @@ const SettingUI = () => {
         () => localStorage.getItem('chat-app-fontSize') || 'medium'
     )
     const { theme, setTheme } = useTheme()
-    
+
     const [localTheme, setLocalTheme] = useState(theme)
     const [savingAppearance, setSavingAppearance] = useState(false)
     const [messageApi, contextHolder] = message.useMessage()
@@ -25,7 +25,7 @@ const SettingUI = () => {
         const saved = localStorage.getItem('chat-app-fontSize') || 'medium'
         applyFontSize(saved)
     }, [])
-    
+
     useEffect(() => {
         setLocalTheme(theme)
     }, [theme])
@@ -45,12 +45,12 @@ const SettingUI = () => {
     }
 
     return (
-        <Card className="rounded-2xl shadow-sm border-none dark:bg-[#24283b] transition-colors duration-300" styles={{ body: { padding: '24px' } }}>
+        <Card className="rounded-2xl shadow-sm border-none transition-colors duration-300" styles={{ body: { padding: '24px' } }}>
             {contextHolder}
-            <Title level={5} className="mb-6! dark:text-white">Cài đặt giao diện</Title>
+            <Title level={5} className="mb-6!">Cài đặt giao diện</Title>
 
             <Form layout="vertical">
-                <Form.Item label={<span className="dark:text-gray-300">Chủ đề</span>}>
+                <Form.Item label="Chủ đề">
                     <Select
                         size="large"
                         value={localTheme}
@@ -63,7 +63,7 @@ const SettingUI = () => {
                     </Select>
                 </Form.Item>
 
-                <Form.Item label={<span className="dark:text-gray-300">Kích thước chữ</span>}>
+                <Form.Item label="Kích thước chữ">
                     <Select
                         size="large"
                         value={fontSize}
@@ -77,7 +77,7 @@ const SettingUI = () => {
                 </Form.Item>
 
                 <div className="rounded-xl bg-[#F8F9FE] dark:bg-[#1a1b26] border border-gray-100 dark:border-gray-800 p-4 mb-4 transition-colors duration-300">
-                    <Text type="secondary" className="text-xs block mb-2 uppercase tracking-wider font-semibold dark:text-gray-400">
+                    <Text type="secondary" className="text-xs block mb-2 uppercase tracking-wider font-semibold">
                         Xem trước
                     </Text>
                     <p style={{ fontSize: FONT_SIZE_MAP[fontSize] }} className="text-gray-700 dark:text-gray-300 leading-relaxed mb-0 transition-colors duration-300">

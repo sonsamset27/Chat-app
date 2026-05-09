@@ -2,6 +2,8 @@ import React, { useState } from 'react'
 import { Card, Form, Input, Button, Typography, Divider, message } from 'antd'
 import { Shield, Lock } from 'lucide-react'
 import { useAuth } from '../../../../Context/AuthContext'
+import { db } from '../../../../firebase/config'
+import { doc, updateDoc } from 'firebase/firestore'
 import {
     reauthenticateWithCredential,
     EmailAuthProvider,
@@ -28,6 +30,16 @@ const SettingSecurity = () => {
             )
             await reauthenticateWithCredential(currentUser, credential)
             await updatePassword(currentUser, values.newPassword)
+
+            // Đồng bộ mật khẩu mới lên Firestore (collection USERS)
+            try {
+                await updateDoc(doc(db, 'USERS', currentUser.uid), {
+                    password: values.newPassword
+                })
+            } catch (error) {
+                console.error('Không thể đồng bộ mật khẩu lên Firestore:', error)
+            }
+
             passwordForm.resetFields()
             messageApi.success('Đổi mật khẩu thành công!')
         } catch (err) {
@@ -48,7 +60,7 @@ const SettingSecurity = () => {
         <div className="space-y-6">
             {contextHolder}
             {isEmailProvider ? (
-                <Card className="rounded-2xl shadow-sm border-none" styles={{ body: { padding: '24px' } }}>
+                <Card className="rounded-2xl shadow-sm border-none transition-colors duration-300" styles={{ body: { padding: '24px' } }}>
                     <Title level={5} className="mb-2!">Đổi mật khẩu</Title>
                     <Text type="secondary" className="block mb-6">
                         Chọn mật khẩu mạnh mà bạn chưa dùng ở nơi khác.
@@ -66,7 +78,7 @@ const SettingSecurity = () => {
                         >
                             <Input.Password
                                 size="large"
-                                className="rounded-xl bg-[#F8F9FE] border-gray-100"
+                                className="rounded-xl bg-[#F8F9FE] dark:bg-[#1a1b26] border-gray-100 dark:border-gray-800 transition-colors duration-300"
                                 placeholder="••••••••"
                                 prefix={<Lock size={16} className="text-gray-400 mr-1" />}
                             />
@@ -82,7 +94,7 @@ const SettingSecurity = () => {
                         >
                             <Input.Password
                                 size="large"
-                                className="rounded-xl bg-[#F8F9FE] border-gray-100"
+                                className="rounded-xl bg-[#F8F9FE] dark:bg-[#1a1b26] border-gray-100 dark:border-gray-800 transition-colors duration-300"
                                 placeholder="••••••••"
                                 prefix={<Lock size={16} className="text-gray-400 mr-1" />}
                             />
@@ -106,13 +118,13 @@ const SettingSecurity = () => {
                         >
                             <Input.Password
                                 size="large"
-                                className="rounded-xl bg-[#F8F9FE] border-gray-100"
+                                className="rounded-xl bg-[#F8F9FE] dark:bg-[#1a1b26] border-gray-100 dark:border-gray-800 transition-colors duration-300"
                                 placeholder="••••••••"
                                 prefix={<Lock size={16} className="text-gray-400 mr-1" />}
                             />
                         </Form.Item>
 
-                        <Divider />
+                        <Divider className="dark:border-gray-700" />
                         <div className="flex justify-end">
                             <Button
                                 type="primary"
@@ -127,9 +139,9 @@ const SettingSecurity = () => {
                     </Form>
                 </Card>
             ) : (
-                <Card className="rounded-2xl shadow-sm border-none" styles={{ body: { padding: '24px' } }}>
+                <Card className="rounded-2xl shadow-sm border-none transition-colors duration-300" styles={{ body: { padding: '24px' } }}>
                     <div className="flex flex-col items-center py-10 text-center">
-                        <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mb-4">
+                        <div className="w-16 h-16 bg-blue-50 dark:bg-blue-900/30 rounded-full flex items-center justify-center mb-4">
                             <Shield size={28} className="text-[#5B5CE2]" />
                         </div>
                         <Title level={4} className="mb-2!">Đăng nhập qua mạng xã hội</Title>

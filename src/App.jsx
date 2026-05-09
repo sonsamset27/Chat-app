@@ -1,5 +1,5 @@
 import React from 'react'
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { ConfigProvider, theme as antdTheme } from 'antd'
 import { AuthProvider } from './Context/AuthContext'
 import { ThemeProvider, useTheme } from './Context/ThemeContext'
@@ -19,18 +19,37 @@ import PrivateRoute from './components/Auth/PrivateRoute'
 
 const AppContent = () => {
   const { effectiveTheme } = useTheme()
+  const location = useLocation()
+  
+  const isAuthPage = location.pathname === '/login' || location.pathname === '/signup'
+  const isDark = effectiveTheme === 'dark' && !isAuthPage
+  const appliedAlgorithm = isDark ? antdTheme.darkAlgorithm : antdTheme.defaultAlgorithm
+
   return (
     <ConfigProvider
       theme={{
-        algorithm: effectiveTheme === 'dark' ? antdTheme.darkAlgorithm : antdTheme.defaultAlgorithm,
+        algorithm: appliedAlgorithm,
         token: {
           colorPrimary: '#5B5CE2',
           borderRadius: 12,
           fontFamily: 'inherit',
+          colorBgLayout: isDark ? '#1a1b26' : '#F8F9FE',
+          colorBgContainer: isDark ? '#24283b' : '#ffffff',
+          colorBorderSecondary: isDark ? '#2f334d' : '#f3f4f6',
         },
+        components: {
+          Menu: {
+            itemBg: 'transparent',
+            itemSelectedBg: isDark ? 'rgba(91, 92, 226, 0.15)' : '#EEF0FF',
+            itemSelectedColor: '#5B5CE2',
+            itemHoverBg: isDark ? 'rgba(255, 255, 255, 0.04)' : '#f9fafb',
+          },
+          Card: {
+            colorBorderSecondary: 'transparent',
+          }
+        }
       }}
     >
-      <BrowserRouter>
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
@@ -50,7 +69,6 @@ const AppContent = () => {
             </Route>
           </Route>
         </Routes>
-      </BrowserRouter>
     </ConfigProvider>
   )
 }
@@ -58,9 +76,11 @@ const AppContent = () => {
 const App = () => {
   return (
     <AuthProvider>
-      <ThemeProvider>
-        <AppContent />
-      </ThemeProvider>
+      <BrowserRouter>
+        <ThemeProvider>
+          <AppContent />
+        </ThemeProvider>
+      </BrowserRouter>
     </AuthProvider>
   )
 }
