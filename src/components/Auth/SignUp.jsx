@@ -102,10 +102,10 @@ const SignUp = () => {
 
             <div className="z-10 w-full max-w-md px-6 my-8">
                 <div className="flex flex-col items-center mb-8">
-                    <div className="w-16 h-16 bg-gradient-to-br from-[#5B5CE2] to-[#7A7BF2] rounded-2xl flex items-center justify-center mb-4 shadow-lg shadow-[#5B5CE2]/30">
+                    <div className="w-16 h-16 bg-linear-to-br from-[#5B5CE2] to-[#7A7BF2] rounded-2xl flex items-center justify-center mb-4 shadow-lg shadow-[#5B5CE2]/30">
                         <MessageSquare className="text-white" size={32} />
                     </div>
-                    <Title level={2} className="!mb-1 text-gray-800">Tạo tài khoản</Title>
+                    <Title level={2} className="mb-1! text-gray-800">Tạo tài khoản</Title>
                     <Text className="text-sm text-gray-500">Tham gia cộng đồng HumanChat ngay hôm nay</Text>
                 </div>
 

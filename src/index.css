@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@custom-variant dark (&:is(.dark *));
 
 /* Ant Design Overrides */
 .custom-sidebar-menu.ant-menu-light .ant-menu-item-selected {

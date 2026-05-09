@@ -7,7 +7,7 @@ const { Content } = Layout
 
 const ChatApp = () => {
     return (
-        <Layout className="h-screen w-screen overflow-hidden bg-[#F8F9FE] flex flex-row">
+        <Layout className="h-screen w-screen overflow-hidden bg-[#F8F9FE] dark:bg-[#1a1b26] flex flex-row transition-colors duration-300">
             <Sidebar />
             <Content className="flex-1 overflow-y-auto">
                 <Outlet />

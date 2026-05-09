@@ -34,8 +34,6 @@ const Sidebar = () => {
         }
     }
 
-
-
     const navItems = [
         { key: '/chats', icon: <MessageSquare size={20} />, label: 'Chats' },
         { key: '/search', icon: <Search size={20} />, label: 'Search' },
@@ -44,7 +42,7 @@ const Sidebar = () => {
     ]
 
     return (
-        <Sider width={280} className="h-full bg-[#F8F9FE] border-r border-gray-100 flex flex-col" theme="light">
+        <Sider width={280} className="h-full bg-[#F8F9FE] dark:bg-[#1a1b26] border-r border-gray-100 dark:border-gray-800 flex flex-col transition-colors duration-300" theme="light">
             <div className="flex flex-col h-full">
                 {/* Logo area */}
                 <div className="p-6 pb-2">
@@ -63,10 +61,10 @@ const Sidebar = () => {
                         {(userProfile?.name || currentUser?.displayName || 'U').charAt(0).toUpperCase()}
                     </Avatar>
                     <div className="flex-1 min-w-0">
-                        <Text strong className="block text-sm truncate">
+                        <Text strong className="block text-sm truncate dark:text-gray-200">
                             {userProfile?.name || currentUser?.displayName || 'Người dùng'}
                         </Text>
-                        <Text type="secondary" className="block text-xs truncate">
+                        <Text type="secondary" className="block text-xs truncate dark:text-gray-400">
                             {currentUser?.email || ''}
                         </Text>
                     </div>
@@ -76,25 +74,19 @@ const Sidebar = () => {
                 <div className="flex-1 px-4 mt-4">
                     <Menu
                         mode="inline"
-                        selectedKeys={[location.pathname]}
+                        selectedKeys={[location.pathname.startsWith('/settings') ? '/settings' : location.pathname]}
                         onClick={({ key }) => navigate(key)}
                         items={navItems}
-                        className="bg-transparent border-none custom-sidebar-menu"
+                        className="bg-transparent border-none custom-sidebar-menu dark:text-gray-300 dark:bg-transparent"
                     />
                 </div>
 
                 {/* Bottom Status / Logout */}
                 <div className="p-6 space-y-3">
-                    <div className="bg-[#EEF0FF] rounded-xl p-4">
-                        <Text strong className="text-xs text-[#5B5CE2] block mb-1">Trạng thái hệ thống</Text>
-                        <div className="flex items-center gap-2">
-                            <Badge status="success" />
-                            <Text className="text-[10px] font-semibold text-gray-600 tracking-wider">ĐANG HOẠT ĐỘNG</Text>
-                        </div>
-                    </div>
+
                     <button
                         onClick={handleLogout}
-                        className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold text-red-500 bg-red-50 hover:bg-red-100 transition-colors border-none cursor-pointer"
+                        className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold text-red-500 bg-red-50 hover:bg-red-100 dark:bg-red-900/30 dark:hover:bg-red-900/50 transition-colors border-none cursor-pointer"
                     >
                         <LogOut size={16} />
                         Đăng xuất
