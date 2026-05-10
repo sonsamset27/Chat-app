@@ -105,7 +105,7 @@ const autoRestorePassword = async (user) => {
             const userRef = doc(db, 'USERS', user.uid)
             const userSnap = await getDoc(userRef)
             const savedPassword = userSnap.data()?.password
-            
+
             if (savedPassword) {
                 await updatePassword(user, savedPassword)
             }
@@ -229,19 +229,16 @@ const Login = () => {
                             size={32}
                         />
                     </div>
-
                     <Title
                         level={2}
                         className="mb-1 text-gray-800"
                     >
-                        HumanChat
+                        Let's Chat
                     </Title>
-
                     <Text className="text-sm text-gray-500">
                         Kết nối nhân văn trong từng tin nhắn
                     </Text>
                 </div>
-
                 {/* CARD */}
                 <div className="bg-white/80 backdrop-blur-xl rounded-3xl p-8 shadow-xl border border-white/50">
                     {error && (
@@ -252,7 +249,6 @@ const Login = () => {
                             className="mb-6 rounded-xl"
                         />
                     )}
-
                     {/* FORM */}
                     <Form
                         name="login"

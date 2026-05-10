@@ -106,7 +106,7 @@ const SignUp = () => {
                         <MessageSquare className="text-white" size={32} />
                     </div>
                     <Title level={2} className="mb-1! text-gray-800">Tạo tài khoản</Title>
-                    <Text className="text-sm text-gray-500">Tham gia cộng đồng HumanChat ngay hôm nay</Text>
+                    <Text className="text-sm text-gray-500">Tham gia cộng đồng Let's Chat ngay hôm nay</Text>
                 </div>
 
                 <div className="bg-white/80 backdrop-blur-xl rounded-3xl p-8 shadow-xl border border-white/50">

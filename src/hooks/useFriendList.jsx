@@ -13,8 +13,7 @@ const useFriendList = (uid) => {
         }
 
         const friendshipsRef = collection(db, 'FRIENDSHIPS')
-        
-        // We use two queries and combine them to avoid complex composite index requirements
+
         const q1 = query(
             friendshipsRef,
             where('status', '==', 'accepted'),

@@ -39,11 +39,13 @@ const Sidebar = () => {
     const navItems = [
         { key: '/chats', icon: <MessageSquare size={20} />, label: 'Chats' },
         { key: '/search', icon: <Search size={20} />, label: 'Search' },
-        { key: '/profile', icon: (
-            <Badge count={requests.length} size="small" offset={[5, 0]}>
-                <User size={20} />
-            </Badge>
-        ), label: 'Profile' },
+        {
+            key: '/profile', icon: (
+                <Badge count={requests.length} size="small" offset={[5, 0]}>
+                    <User size={20} />
+                </Badge>
+            ), label: 'Profile'
+        },
         { key: '/settings', icon: <Settings size={20} />, label: 'Settings' },
     ]
 
@@ -52,8 +54,8 @@ const Sidebar = () => {
             <div className="flex flex-col h-full">
                 {/* Logo area */}
                 <div className="p-6 pb-2">
-                    <Title level={4} className="!text-[#5B5CE2] !mb-0 flex items-center gap-2">
-                        HumanChat
+                    <Title level={6} className="!text-[#5B5CE2] !mb-0 flex items-center gap-2">
+                        Let's Chat
                     </Title>
                 </div>
 
