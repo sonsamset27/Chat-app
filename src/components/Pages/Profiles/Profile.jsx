@@ -45,7 +45,7 @@ const Profile = () => {
                     </div>
                 </Card>
 
-                {/* Mutual Friends */}
+                {/*  Friends list */}
                 <Card className="rounded-3xl shadow-sm border-gray-100 dark:border-gray-800 transition-colors duration-300" styles={{ body: { padding: '24px' } }}>
                     <Title level={5} className="mb-4!">Bạn bè</Title>
                     <Space orientation="vertical" size="middle" className="w-full mb-4 overflow-auto max-h-[250px]">
