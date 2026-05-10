@@ -5,6 +5,7 @@ import { MessageSquare, Search, User, Settings, LogOut } from 'lucide-react'
 import { useAuth } from '../../Context/AuthContext'
 import { db } from '../../firebase/config'
 import { doc, updateDoc, serverTimestamp } from 'firebase/firestore'
+import useIncomingRequests from '../../hooks/useIncomingRequests'
 
 const { Sider } = Layout
 const { Text, Title } = Typography
@@ -13,6 +14,7 @@ const Sidebar = () => {
     const navigate = useNavigate()
     const location = useLocation()
     const { currentUser, userProfile, logout } = useAuth()
+    const { requests } = useIncomingRequests()
 
     const setStatus = async (status) => {
         try {
@@ -37,7 +39,11 @@ const Sidebar = () => {
     const navItems = [
         { key: '/chats', icon: <MessageSquare size={20} />, label: 'Chats' },
         { key: '/search', icon: <Search size={20} />, label: 'Search' },
-        { key: '/profile', icon: <User size={20} />, label: 'Profile' },
+        { key: '/profile', icon: (
+            <Badge count={requests.length} size="small" offset={[5, 0]}>
+                <User size={20} />
+            </Badge>
+        ), label: 'Profile' },
         { key: '/settings', icon: <Settings size={20} />, label: 'Settings' },
     ]
 

@@ -7,6 +7,7 @@ import ChatApp from './components/Pages/ChatApp'
 import Chats from './components/Pages/Chats/Chats'
 import Search from './components/Pages/Search/Search'
 import Profile from './components/Pages/Profiles/Profile'
+import OtherProfile from './components/Pages/Profiles/OtherProfile'
 import Settings from './components/Pages/Setting/Settings'
 import SettingAccount from './components/Pages/Setting/components/SettingAccount'
 import SettingNoti from './components/Pages/Setting/components/SettingNoti'
@@ -59,6 +60,7 @@ const AppContent = () => {
             <Route path="chats" element={<Chats />} />
             <Route path="search" element={<Search />} />
             <Route path="profile" element={<Profile />} />
+            <Route path="profile/:uid" element={<OtherProfile />} />
             <Route path="settings" element={<Settings />}>
               <Route index element={<Navigate to="account" replace />} />
               <Route path="account" element={<SettingAccount />} />
