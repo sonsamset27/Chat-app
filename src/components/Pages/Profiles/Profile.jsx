@@ -20,7 +20,7 @@ const Profile = () => {
     const email = currentUser?.email || ''
 
     return (
-        <div className="h-full flex flex-col bg-white dark:bg-[#1a1b26] rounded-tl-[30px] shadow-sm overflow-hidden border border-gray-100 dark:border-gray-800 transition-colors duration-300">
+        <div className="h-full flex flex-col bg-white dark:bg-[#1a1b26] shadow-sm overflow-hidden border border-gray-100 dark:border-gray-800 transition-colors duration-300">
             <div className="flex flex-col gap-3 p-8 overflow-y-auto">
                 <Card className="rounded-3xl shadow-sm mb-6 border-gray-100 dark:border-gray-800 transition-colors duration-300" styles={{ body: { padding: '32px' } }}>
                     <div className="flex justify-between items-start mb-6">
@@ -53,7 +53,7 @@ const Profile = () => {
                     <div className="flex justify-between items-center mb-6">
                         <Title level={5} className="mb-0!">Bạn bè ({friends.length})</Title>
                     </div>
-                    
+
                     {loadingFriends ? (
                         <div className="flex justify-center py-10"><Spin /></div>
                     ) : (

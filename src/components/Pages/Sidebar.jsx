@@ -6,6 +6,7 @@ import { useAuth } from '../../Context/AuthContext'
 import { db } from '../../firebase/config'
 import { doc, updateDoc, serverTimestamp } from 'firebase/firestore'
 import useIncomingRequests from '../../hooks/useIncomingRequests'
+import useConversations from '../../hooks/useConversations'
 
 const { Sider } = Layout
 const { Text, Title } = Typography
@@ -15,6 +16,7 @@ const Sidebar = () => {
     const location = useLocation()
     const { currentUser, userProfile, logout } = useAuth()
     const { requests } = useIncomingRequests()
+    const { totalUnread } = useConversations()
 
     const setStatus = async (status) => {
         try {
@@ -37,7 +39,15 @@ const Sidebar = () => {
     }
 
     const navItems = [
-        { key: '/chats', icon: <MessageSquare size={20} />, label: 'Chats' },
+        { 
+            key: '/chats', 
+            icon: (
+                <Badge count={totalUnread} size="small" offset={[5, 0]}>
+                    <MessageSquare size={20} />
+                </Badge>
+            ), 
+            label: 'Chats' 
+        },
         { key: '/search', icon: <Search size={20} />, label: 'Search' },
         {
             key: '/profile', icon: (

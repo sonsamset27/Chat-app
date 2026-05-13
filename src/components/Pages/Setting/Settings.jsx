@@ -8,7 +8,7 @@ const { Title, Text } = Typography
 
 const Settings = () => {
     return (
-        <div className="h-full flex flex-col bg-[#F8F9FE] dark:bg-[#1a1b26] rounded-tl-[30px] shadow-sm overflow-hidden border border-gray-100 dark:border-gray-800 transition-colors duration-300">
+        <div className="h-full flex flex-col bg-[#F8F9FE] dark:bg-[#1a1b26] shadow-sm overflow-hidden border border-gray-100 dark:border-gray-800 transition-colors duration-300">
             {/* Header */}
             <div className="px-8 py-6 border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-[#24283b] transition-colors duration-300">
                 <Title level={3} className="mb-1!">Cài đặt</Title>

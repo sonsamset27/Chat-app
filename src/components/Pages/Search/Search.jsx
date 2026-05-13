@@ -18,7 +18,7 @@ const Search = () => {
     const { suggestions, loading: suggestLoading, refreshSuggestions } = useFriendSuggestions()
     const { searchResults, recentSearches, loading: searchLoading, searchUsers, saveRecentSearch } = useSearchUsers()
     const { requests } = useIncomingRequests()
-    
+
     const [searchQuery, setSearchQuery] = useState('')
 
     const handleSearch = (e) => {
@@ -38,7 +38,7 @@ const Search = () => {
     const resultsTitle = searchQuery.trim() ? 'Kết quả tìm kiếm' : 'Tìm kiếm gần đây'
 
     return (
-        <div className="h-full flex flex-col bg-white dark:bg-[#1a1b26] rounded-tl-[30px] shadow-sm overflow-hidden border border-gray-100 dark:border-gray-800 transition-colors duration-300">
+        <div className="h-full flex flex-col bg-white dark:bg-[#1a1b26] shadow-sm overflow-hidden border border-gray-100 dark:border-gray-800 transition-colors duration-300">
             {/* Header */}
             <div className="flex items-center justify-between px-8 py-5 border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-[#1a1b26] transition-colors duration-300">
                 <div className="w-1/2">

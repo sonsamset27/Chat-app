@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { doc, onSnapshot, setDoc, updateDoc, deleteDoc, serverTimestamp } from 'firebase/firestore'
+import { doc, onSnapshot, setDoc, updateDoc, deleteDoc, serverTimestamp, collection, addDoc, getDoc } from 'firebase/firestore'
 import { db } from '../firebase/config'
 import { useAuth } from '../Context/AuthContext'
 import { message } from 'antd'
@@ -67,6 +67,34 @@ const useFriendship = (otherUid) => {
                 status: 'accepted',
                 updatedAt: serverTimestamp()
             })
+
+            // Initialize conversation
+            const conversationId = getFriendshipId(currentUser.uid, otherUid)
+            const convRef = doc(db, 'CONVERSATIONS', conversationId)
+            const convSnap = await getDoc(convRef)
+
+            if (!convSnap.exists()) {
+                await setDoc(convRef, {
+                    participants: [currentUser.uid, otherUid],
+                    updatedAt: serverTimestamp(),
+                    lastMessageId: null
+                })
+
+                // Send system message
+                const messagesRef = collection(db, 'MESSAGES')
+                const systemMsg = await addDoc(messagesRef, {
+                    conversationId: conversationId,
+                    type: 'system',
+                    text: 'Hai bạn đã trở thành bạn bè',
+                    createdAt: serverTimestamp()
+                })
+
+                await updateDoc(convRef, {
+                    lastMessageId: systemMsg.id,
+                    updatedAt: serverTimestamp()
+                })
+            }
+
             message.success('Đã chấp nhận kết bạn')
         } catch (error) {
             console.error("Error accepting friend request:", error)
