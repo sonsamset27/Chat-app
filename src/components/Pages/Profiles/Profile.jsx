@@ -53,17 +53,23 @@ const Profile = () => {
                             <Avatar
                                 src={avatarUrl || undefined}
                                 size={{ xs: 72, sm: 80, md: 88 }}
-                                className="ring-4 ring-gray-50 dark:ring-gray-800 bg-[#5B5CE2]"
+                                className="ring-4 ring-gray-50 dark:ring-gray-800 bg-[#5B5CE2] shadow-sm transition-all duration-300"
                             >
                                 {displayName.charAt(0).toUpperCase()}
                             </Avatar>
-                            <span className={`absolute bottom-1 right-1 w-3 h-3 rounded-full border-2 border-white dark:border-gray-900 ${status === 'online' ? 'bg-green-500' : 'bg-gray-300'}`} />
+
+                            <div className="absolute bottom-1 right-1 flex items-center justify-center">
+                                {status === 'online' && (
+                                    <span className="absolute w-full h-full rounded-full bg-emerald-500 animate-ping opacity-75" />
+                                )}
+                                <span className={`relative w-4 h-4 rounded-full border-[2.5px] border-white dark:border-gray-900 shadow-sm ${status === 'online' ? 'bg-emerald-500' : 'bg-gray-400'}`} />
+                            </div>
                         </div>
 
                         {/* Name + status */}
                         <div className="text-center sm:text-left pt-0 sm:pt-1 min-w-0">
                             <Title level={3} className="!mb-0.5 !text-xl md:!text-2xl truncate">{displayName}</Title>
-                            <Text className={`text-sm font-medium ${status === 'online' ? 'text-green-600' : 'text-gray-400'}`}>
+                            <Text className={`text-sm font-medium ${status === 'online' ? 'text-emerald-600' : 'text-gray-400'}`}>
                                 {status === 'online' ? 'Đang hoạt động' : 'Ngoại tuyến'}
                             </Text>
                             <Text type="secondary" className="block text-xs mt-0.5 truncate">{email}</Text>
