@@ -1,12 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { Layout, Avatar, Badge, Input, Button, Typography, Divider, Spin, Empty, Upload } from 'antd'
-import { Search, Bell, MoreVertical, Paperclip, Smile, Send, User, ChevronUp } from 'lucide-react'
+import { Layout, Avatar, Badge, Input, Button, Typography, Divider, Spin, Empty, Upload, Popover } from 'antd'
+import { Search, Bell, MoreVertical, Paperclip, Smile, Send, User, Users, ChevronUp, Info } from 'lucide-react'
 import { useAuth } from '../../../Context/AuthContext'
 import useConversations from '../../../hooks/useConversations'
 import useMessages from '../../../hooks/useMessages'
 import useUploadImage from '../../../hooks/useUploadImage'
 import ChatFriendListCard from './components/ChatFriendListCard'
 import MessListCard from './components/MessListCard'
+import CreateGroupModal from './components/CreateGroupModal'
+import GroupDetailsModal from './components/GroupDetailsModal'
+import EmojiPicker from 'emoji-picker-react'
+import { useNavigate } from 'react-router-dom'
 
 import { db } from '../../../firebase/config'
 import { doc, onSnapshot, updateDoc } from 'firebase/firestore'
@@ -28,6 +32,10 @@ const Chats = () => {
     const { uploadImage, uploading } = useUploadImage()
     const [showScrollBtn, setShowScrollBtn] = useState(false)
     const scrollRef = useRef(null)
+    const navigate = useNavigate()
+    const [isCreateGroupOpen, setIsCreateGroupOpen] = useState(false)
+    const [isGroupDetailsOpen, setIsGroupDetailsOpen] = useState(false)
+    const [messageSearchText, setMessageSearchText] = useState('')
 
     // Listen to Active Other User's Profile
     useEffect(() => {
@@ -104,11 +112,13 @@ const Chats = () => {
                         </Title>
                         <Button
                             type="text"
-                            icon={<Bell size={22} className="text-gray-400 dark:text-gray-500 hover:text-indigo-600 transition-colors" />}
+                            icon={<Users size={22} className="text-indigo-600 dark:text-indigo-400" />}
+                            onClick={() => setIsCreateGroupOpen(true)}
                             className="flex items-center justify-center hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-xl"
+                            title="Tạo nhóm chat"
                         />
                     </div>
-
+                    {/*đoạn tìm kiếm bạn bè trong thanh hội thoại*/}
                     <Input
                         placeholder="Tìm kiếm hội thoại..."
                         prefix={<Search size={18} className="text-gray-400" />}
@@ -148,25 +158,62 @@ const Chats = () => {
                         {/* Chat Header */}
                         <div className="px-8 py-5 border-b border-gray-100 dark:border-gray-800 bg-white/90 dark:bg-[#1a1b26]/90 backdrop-blur-xl flex justify-between items-center sticky top-0 z-20 shadow-sm transition-colors duration-300">
                             <div className="flex items-center gap-4 group cursor-pointer">
-                                <Badge dot status={activeOtherUser?.status === 'online' ? 'success' : 'default'} offset={[-4, 34]} size="large">
-                                    <Avatar src={activeOtherUser?.photoURL || activeOtherUser?.avatar} size={48} className="ring-2 ring-indigo-50 dark:ring-indigo-900/30 transition-all group-hover:ring-indigo-200" />
-                                </Badge>
+                                {activeConversation?.isGroup ? (
+                                    <Avatar size={48} className="bg-gradient-to-br from-indigo-400 to-indigo-600 shadow-sm ring-2 ring-indigo-50 dark:ring-indigo-900/30 flex items-center justify-center text-white">
+                                        <Users size={24} />
+                                    </Avatar>
+                                ) : (
+                                    <Badge dot status={activeOtherUser?.status === 'online' ? 'success' : 'default'} offset={[-4, 34]} size="large">
+                                        <Avatar 
+                                            src={activeOtherUser?.photoURL || activeOtherUser?.avatar} 
+                                            size={48} 
+                                            className={`ring-2 ring-indigo-50 dark:ring-indigo-900/30 transition-all group-hover:ring-indigo-200 flex items-center justify-center font-bold text-lg ${(!activeOtherUser?.photoURL && !activeOtherUser?.avatar) ? 'bg-gradient-to-br from-gray-200 via-gray-300 to-gray-400 dark:from-gray-700 dark:to-gray-800 text-white' : ''}`}
+                                        >
+                                            {(activeOtherUser?.displayName || activeOtherUser?.name)?.charAt(0).toUpperCase() || '?'}
+                                        </Avatar>
+                                    </Badge>
+                                )}
                                 <div>
                                     <Title level={5} className="!mb-0.5 !text-[15px] !font-bold text-gray-800 dark:text-gray-100 tracking-tight transition-colors">
-                                        {activeOtherUser?.displayName || activeOtherUser?.name || 'Loading...'}
+                                        {activeConversation?.isGroup ? activeConversation.groupName : (activeOtherUser?.displayName || activeOtherUser?.name || 'Loading...')}
                                     </Title>
-                                    <div className="flex items-center gap-1.5">
-                                        <div className={`w-2 h-2 rounded-full ${activeOtherUser?.status === 'online' ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-600'}`} />
-                                        <Text className={`text-[11px] ${activeOtherUser?.status === 'online' ? 'text-green-600' : 'text-gray-400 dark:text-gray-500'} font-bold uppercase tracking-wider transition-colors`}>
-                                            {activeOtherUser?.status === 'online' ? 'Online' : 'Offline'}
-                                        </Text>
-                                    </div>
+                                    {!activeConversation?.isGroup && (
+                                        <div className="flex items-center gap-1.5">
+                                            <div className={`w-2 h-2 rounded-full ${activeOtherUser?.status === 'online' ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-600'}`} />
+                                            <Text className={`text-[11px] ${activeOtherUser?.status === 'online' ? 'text-green-600' : 'text-gray-400 dark:text-gray-500'} font-bold uppercase tracking-wider transition-colors`}>
+                                                {activeOtherUser?.status === 'online' ? 'Online' : 'Offline'}
+                                            </Text>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                             <div className="flex items-center gap-5">
                                 <div className="flex items-center gap-2">
-                                    <Button type="text" icon={<Bell size={20} />} className="text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl" />
-                                    <Button type="text" icon={<MoreVertical size={20} />} className="text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl" />
+                                    <Input
+                                        placeholder="Tìm kiếm tin nhắn..."
+                                        prefix={<Search size={16} className="text-gray-400" />}
+                                        value={messageSearchText}
+                                        onChange={(e) => setMessageSearchText(e.target.value)}
+                                        className="rounded-2xl border-none bg-gray-50 dark:bg-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-800 focus:bg-white dark:focus:bg-gray-700 transition-all w-[200px]"
+                                    />
+                                    {!activeConversation?.isGroup && activeOtherUser?.id && (
+                                        <Button 
+                                            type="text" 
+                                            icon={<User size={20} />} 
+                                            onClick={() => navigate(`/profile/${activeOtherUser.id}`)}
+                                            className="text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-xl" 
+                                            title="Trang cá nhân"
+                                        />
+                                    )}
+                                    {activeConversation?.isGroup && (
+                                        <Button 
+                                            type="text" 
+                                            icon={<Info size={20} />} 
+                                            onClick={() => setIsGroupDetailsOpen(true)}
+                                            className="text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-xl" 
+                                            title="Thông tin nhóm"
+                                        />
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -180,7 +227,7 @@ const Chats = () => {
                             {/* Load More Button */}
                             {hasMore && (
                                 <div className="flex justify-center pb-8 pt-4">
-                                    <button 
+                                    <button
                                         onClick={loadMore}
                                         disabled={loadingMore}
                                         className="flex items-center gap-2 px-6 py-2.5 bg-white dark:bg-gray-800/80 border border-gray-100 dark:border-gray-700/50 rounded-full shadow-sm hover:shadow-md hover:border-indigo-200 dark:hover:border-indigo-500/30 text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all active:scale-95 disabled:opacity-50 group"
@@ -204,14 +251,17 @@ const Chats = () => {
                                     </div>
                                 </div>
                             ) : (
-                                messages.map((msg) => (
-                                    <MessListCard
-                                        key={msg.id}
-                                        message={msg}
-                                        isSender={msg.senderId === currentUser?.uid}
-                                        onDelete={() => deleteMessage(msg.id)}
-                                    />
-                                ))
+                                messages
+                                    .filter(msg => !messageSearchText || (msg.text && msg.text.toLowerCase().includes(messageSearchText.toLowerCase())))
+                                    .map((msg) => (
+                                        <MessListCard
+                                            key={msg.id}
+                                            message={msg}
+                                            isSender={msg.senderId === currentUser?.uid}
+                                            highlight={messageSearchText}
+                                            onDelete={() => deleteMessage(msg.id)}
+                                        />
+                                    ))
                             )}
                             <div ref={messagesEndRef} className="h-4" />
                         </div>
@@ -258,9 +308,20 @@ const Chats = () => {
                                     />
 
                                     {/* Emoji */}
-                                    <button className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-indigo-500 transition">
-                                        <Smile size={18} />
-                                    </button>
+                                    <Popover
+                                        content={
+                                            <EmojiPicker 
+                                                onEmojiClick={(emojiData) => setInputMsg(prev => prev + emojiData.emoji)} 
+                                                theme="auto"
+                                            />
+                                        }
+                                        trigger="click"
+                                        placement="topLeft"
+                                    >
+                                        <button className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-indigo-500 transition">
+                                            <Smile size={18} />
+                                        </button>
+                                    </Popover>
                                 </div>
 
                                 {/* Send */}
@@ -280,6 +341,18 @@ const Chats = () => {
                     </div>
                 )}
             </Content>
+
+            <CreateGroupModal 
+                isOpen={isCreateGroupOpen} 
+                onClose={() => setIsCreateGroupOpen(false)} 
+                onGroupCreated={(newId) => setActiveConvId(newId)}
+            />
+
+            <GroupDetailsModal
+                isOpen={isGroupDetailsOpen}
+                onClose={() => setIsGroupDetailsOpen(false)}
+                conversation={activeConversation}
+            />
         </Layout>
     )
 }

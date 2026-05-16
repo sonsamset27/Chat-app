@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Avatar, Badge, Typography } from 'antd'
+import { Users } from 'lucide-react'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { useAuth } from '../../../../Context/AuthContext'
@@ -13,11 +14,11 @@ const { Text } = Typography
 
 const ChatFriendListCard = ({ conversation, active, onClick, searchTerm = '' }) => {
     const { currentUser } = useAuth()
-    const { participants, lastMessageId, updatedAt } = conversation
+    const { participants, lastMessageId, updatedAt, isGroup, groupName } = conversation
     const [otherUser, setOtherUser] = useState(null)
     const [lastMessage, setLastMessage] = useState(null)
 
-    const otherUid = participants.find(uid => uid !== currentUser?.uid)
+    const otherUid = !isGroup ? participants.find(uid => uid !== currentUser?.uid) : null
 
     // Listen to Other User's Profile
     useEffect(() => {
@@ -39,8 +40,10 @@ const ChatFriendListCard = ({ conversation, active, onClick, searchTerm = '' }) 
 
     // Search Filtering
     if (searchTerm.trim()) {
-        const friendName = (otherUser?.displayName || otherUser?.name || '').toLowerCase()
-        if (!friendName.includes(searchTerm.toLowerCase())) {
+        const matchName = isGroup 
+            ? (groupName || '').toLowerCase()
+            : (otherUser?.displayName || otherUser?.name || '').toLowerCase()
+        if (!matchName.includes(searchTerm.toLowerCase())) {
             return null
         }
     }
@@ -63,28 +66,34 @@ const ChatFriendListCard = ({ conversation, active, onClick, searchTerm = '' }) 
                 }`}
         >
             <div className="relative">
-                <Badge
-                    dot
-                    status={otherUser?.status === 'online' ? 'success' : 'default'}
-                    offset={[-4, 38]}
-                    className="scale-125"
-                >
-                    {(otherUser?.photoURL || otherUser?.avatar) ? (
-                        <Avatar src={otherUser.photoURL || otherUser.avatar} size={52} className="shadow-sm ring-2 ring-white dark:ring-gray-800" />
-                    ) : (
-                        <Avatar size={52} className="bg-gradient-to-br from-gray-200 via-gray-300 to-gray-400 dark:from-gray-700 dark:to-gray-800 shadow-sm ring-2 ring-white dark:ring-gray-800 flex items-center justify-center font-bold text-lg text-white">
+                {isGroup ? (
+                    <Avatar size={52} className="bg-gradient-to-br from-indigo-400 to-indigo-600 shadow-sm ring-2 ring-white dark:ring-gray-800 flex items-center justify-center text-white">
+                        <Users size={24} />
+                    </Avatar>
+                ) : (
+                    <Badge
+                        dot
+                        status={otherUser?.status === 'online' ? 'success' : 'default'}
+                        offset={[-4, 38]}
+                        className="scale-125"
+                    >
+                        <Avatar 
+                            src={otherUser?.photoURL || otherUser?.avatar} 
+                            size={52} 
+                            className={`shadow-sm ring-2 ring-white dark:ring-gray-800 flex items-center justify-center font-bold text-lg ${(!otherUser?.photoURL && !otherUser?.avatar) ? 'bg-gradient-to-br from-gray-200 via-gray-300 to-gray-400 dark:from-gray-700 dark:to-gray-800 text-white' : ''}`}
+                        >
                             {(otherUser?.displayName || otherUser?.name)?.charAt(0).toUpperCase() || '?'}
                         </Avatar>
-                    )}
-                </Badge>
+                    </Badge>
+                )}
             </div>
 
             <div className="flex-1 overflow-hidden">
-                <div className="flex justify-between items-baseline mb-1">
+                <div className="flex justify-between items-center mb-1 gap-2">
                     <Text strong className={`text-[15px] truncate transition-colors ${active ? 'text-indigo-900 dark:text-indigo-200' : 'text-gray-800 dark:text-gray-200'}`}>
-                        {otherUser?.displayName || otherUser?.name || 'Loading...'}
+                        {isGroup ? groupName : (otherUser?.displayName || otherUser?.name || 'Loading...')}
                     </Text>
-                    <Text className={`text-[10px] font-medium ${active ? 'text-indigo-400 dark:text-indigo-500' : 'text-gray-400 dark:text-gray-500'}`}>
+                    <Text className={`text-[10px] font-medium whitespace-nowrap shrink-0 ${active ? 'text-indigo-400 dark:text-indigo-500' : 'text-gray-400 dark:text-gray-500'}`}>
                         {time}
                     </Text>
                 </div>

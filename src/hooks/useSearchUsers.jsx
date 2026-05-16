@@ -59,27 +59,19 @@ const useSearchUsers = () => {
         setLoading(true)
         try {
             const profilesRef = collection(db, 'PROFILES')
-            // FireStore doesn't natively support full-text search easily.
-            // We'll use a prefix search. For it to work well, we can search by exact name prefix.
-            // Note: In a real app, Algolia or MeiliSearch is recommended.
-            
-            // To make it case insensitive, we should ideally have a lowercase_name field.
-            // Since we don't, we will do a simple prefix search (case sensitive) and a client side filter.
-            // For better UX, we'll fetch all users if the app is small, OR just use string bounds.
-            const q = query(
-                profilesRef, 
-                orderBy('name'),
-                startAt(searchQuery),
-                endAt(searchQuery + '\uf8ff'),
-                limit(20)
-            )
-            
-            const snapshot = await getDocs(q)
+            // Fetch all profiles and filter client-side for true case-insensitive substring search
+            const snapshot = await getDocs(profilesRef)
             const results = []
+            const lowerQuery = searchQuery.toLowerCase()
+            
             snapshot.forEach(doc => {
                 const data = doc.data()
                 if (data.userId !== currentUser?.uid) {
-                    results.push(data)
+                    const matchName = (data.name || data.displayName || '').toLowerCase()
+                    const matchEmail = (data.email || '').toLowerCase()
+                    if (matchName.includes(lowerQuery) || matchEmail.includes(lowerQuery)) {
+                        results.push(data)
+                    }
                 }
             })
             setSearchResults(results)

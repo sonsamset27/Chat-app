@@ -36,12 +36,12 @@ const SearchRecentCard = ({ user }) => {
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
                     <Avatar 
-                        src={user.avatar ? `${user.avatar}` : undefined} 
+                        src={(user.avatar || user.photoURL) ? (user.avatar || user.photoURL) : undefined} 
                         size={48} 
                         shape="square" 
-                        className="rounded-xl bg-[#5B5CE2]" 
+                        className={`rounded-xl ${!(user.avatar || user.photoURL) ? 'bg-[#5B5CE2] flex items-center justify-center font-bold text-white' : ''}`}
                     >
-                        {user.name?.charAt(0)?.toUpperCase()}
+                        {(user.displayName || user.name)?.charAt(0)?.toUpperCase() || '?'}
                     </Avatar>
                     <div className="max-w-[200px]">
                         <Title level={5} className="!mb-0 !text-sm truncate">{user.name}</Title>

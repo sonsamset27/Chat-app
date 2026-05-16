@@ -30,11 +30,11 @@ const SearchFriendSuggestionCard = ({ user }) => {
             <div className="relative mb-4">
                 <Badge dot status={user.status === 'online' ? 'success' : 'default'} offset={[-5, 70]} className="!mb-0">
                     <Avatar 
-                        src={user.avatar ? `${user.avatar}` : undefined} 
+                        src={(user.avatar || user.photoURL) ? (user.avatar || user.photoURL) : undefined} 
                         size={80} 
-                        className="shadow-sm ring-4 ring-[#F8F9FE] bg-[#5B5CE2]" 
+                        className={`shadow-sm ring-4 ring-[#F8F9FE] ${!(user.avatar || user.photoURL) ? 'bg-[#5B5CE2] flex items-center justify-center font-bold text-white text-3xl' : ''}`} 
                     >
-                        {user.name?.charAt(0)?.toUpperCase()}
+                        {(user.displayName || user.name)?.charAt(0)?.toUpperCase() || '?'}
                     </Avatar>
                 </Badge>
             </div>
