@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Card, Form, Select, Button, Typography, Divider, message } from 'antd'
 import { useTheme } from '../../../../Context/ThemeContext'
+import { Sun, Moon, Monitor } from 'lucide-react'
 
 const { Title, Text } = Typography
 
@@ -57,9 +58,26 @@ const SettingUI = () => {
                         onChange={setLocalTheme}
                         className="w-full"
                     >
-                        <Select.Option value="light">☀️&nbsp; Sáng</Select.Option>
-                        <Select.Option value="dark">🌙&nbsp; Tối</Select.Option>
-                        <Select.Option value="system">💻&nbsp; Theo hệ thống</Select.Option>
+                        <Select.Option value="light">
+                            <div className="flex items-center gap-2">
+                                <Sun size={18} />
+                                <span>Sáng</span>
+                            </div>
+                        </Select.Option>
+
+                        <Select.Option value="dark">
+                            <div className="flex items-center gap-2">
+                                <Moon size={18} />
+                                <span>Tối</span>
+                            </div>
+                        </Select.Option>
+
+                        <Select.Option value="system">
+                            <div className="flex items-center gap-2">
+                                <Monitor size={18} />
+                                <span>Theo hệ thống</span>
+                            </div>
+                        </Select.Option>
                     </Select>
                 </Form.Item>
 
