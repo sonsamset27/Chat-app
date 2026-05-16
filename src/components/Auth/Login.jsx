@@ -297,13 +297,6 @@ const Login = () => {
                                     <Text className="text-[10px] font-bold text-gray-500 tracking-wider uppercase">
                                         Mật khẩu
                                     </Text>
-
-                                    <Link
-                                        to="#"
-                                        className="text-xs text-[#5B5CE2] hover:underline font-medium"
-                                    >
-                                        Quên mật khẩu?
-                                    </Link>
                                 </div>
                             }
                             name="password"
