@@ -54,7 +54,7 @@ const Sidebar = () => {
                 ============================== */}
             <nav className="
                 flex md:hidden
-                flex-row justify-around items-center
+                flex-row items-stretch
                 w-full h-[60px]
                 bg-white dark:bg-[#1a1b26]
                 border-t border-gray-100 dark:border-gray-800
@@ -67,16 +67,22 @@ const Sidebar = () => {
                             key={item.key}
                             onClick={() => navigate(item.key)}
                             className={`
-                                flex flex-col items-center justify-center gap-0.5
+                                flex flex-col items-center justify-center gap-1
                                 flex-1 h-full cursor-pointer transition-all duration-200
                                 border-none bg-transparent
                                 ${isActive ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-400 dark:text-gray-500'}
                             `}
                         >
-                            <Badge count={item.badge} size="small" offset={[4, -2]}>
+                            {/* Wrap icon in a fixed-size relative container so Badge doesn't shift layout */}
+                            <div className="relative w-6 h-6 flex items-center justify-center">
                                 {item.icon}
-                            </Badge>
-                            <span className={`text-[10px] font-semibold ${isActive ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-400'}`}>
+                                {item.badge > 0 && (
+                                    <span className="absolute -top-1 -right-2 min-w-[16px] h-4 px-1 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center leading-none">
+                                        {item.badge > 99 ? '99+' : item.badge}
+                                    </span>
+                                )}
+                            </div>
+                            <span className={`text-[10px] font-semibold leading-none ${isActive ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-400'}`}>
                                 {item.label}
                             </span>
                         </button>
