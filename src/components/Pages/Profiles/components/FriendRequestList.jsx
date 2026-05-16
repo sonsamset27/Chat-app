@@ -11,37 +11,41 @@ const RequestItem = ({ user }) => {
     const { acceptRequest, rejectRequest, loading } = useFriendship(user.userId)
 
     return (
-        <div className="flex items-center justify-between p-3 rounded-xl bg-blue-50/50 dark:bg-blue-900/10 border border-blue-100/50 dark:border-blue-800/30 transition-colors">
-            <Space size="middle" className="cursor-pointer" onClick={() => navigate(`/profile/${user.userId}`)}>
-                <Avatar 
-                    src={user.avatar || undefined} 
-                    size={40} 
-                    className="bg-[#5B5CE2]"
+        <div className="flex items-center justify-between gap-2 p-3 rounded-xl bg-blue-50/50 dark:bg-blue-900/10 border border-blue-100/50 dark:border-blue-800/30 transition-colors overflow-hidden">
+            {/* Left: avatar + name */}
+            <div className="flex items-center gap-3 min-w-0 flex-1 cursor-pointer" onClick={() => navigate(`/profile/${user.userId}`)}>
+                <Avatar
+                    src={user.avatar || undefined}
+                    size={38}
+                    className="bg-[#5B5CE2] shrink-0"
                 >
                     {user.name?.charAt(0).toUpperCase()}
                 </Avatar>
-                <div>
-                    <Text strong className="block text-sm">{user.name}</Text>
-                    <Text type="secondary" className="text-[10px]">Muốn kết bạn với bạn</Text>
+                <div className="min-w-0 overflow-hidden">
+                    <Text strong className="block text-sm truncate">{user.name}</Text>
+                    <Text type="secondary" className="text-[10px] whitespace-nowrap">Muốn kết bạn với bạn</Text>
                 </div>
-            </Space>
-            <Space size="small">
-                <Button 
-                    type="primary" 
-                    shape="circle" 
-                    icon={<Check size={16} />} 
+            </div>
+            {/* Right: action buttons */}
+            <div className="flex items-center gap-1 shrink-0">
+                <Button
+                    type="primary"
+                    shape="circle"
+                    size="small"
+                    icon={<Check size={14} />}
                     className="bg-[#5B5CE2] border-none shadow-sm"
                     onClick={acceptRequest}
                     loading={loading}
                 />
-                <Button 
-                    shape="circle" 
-                    icon={<X size={16} />} 
+                <Button
+                    shape="circle"
+                    size="small"
+                    icon={<X size={14} />}
                     className="hover:text-red-500 hover:border-red-200"
                     onClick={rejectRequest}
                     loading={loading}
                 />
-            </Space>
+            </div>
         </div>
     )
 }

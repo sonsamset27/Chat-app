@@ -1,6 +1,6 @@
 import React from 'react'
-import { Avatar, Button, Typography, Empty } from 'antd'
-import { MessageSquarePlus } from 'lucide-react'
+import { Avatar, Button, Typography, Empty, Tooltip } from 'antd'
+import { MessageSquarePlus, User } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
 const { Text } = Typography
@@ -13,7 +13,7 @@ const ProfileFriendList = ({ friends }) => {
     }
 
     return (
-        <div className="flex flex-col gap-1 max-h-[400px] overflow-y-auto pr-1 custom-scrollbar">
+        <div className="flex flex-col gap-1 max-h-[400px] overflow-y-auto overflow-x-hidden pr-1 custom-scrollbar">
             {friends.map((friend) => (
                 <div
                     key={friend.userId}
@@ -49,6 +49,17 @@ const ProfileFriendList = ({ friends }) => {
                             onClick={() => navigate('/chats')}
                             title="Nhắn tin"
                         />
+                        {/* Icon-only on mobile */}
+                        <Tooltip title="Trang cá nhân">
+                            <Button
+                                type="text"
+                                size="small"
+                                icon={<User size={16} />}
+                                className="sm:hidden text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg"
+                                onClick={() => navigate(`/profile/${friend.userId}`)}
+                            />
+                        </Tooltip>
+                        {/* Full text on sm+ */}
                         <Button
                             size="small"
                             className="rounded-lg text-xs font-bold text-gray-600 dark:text-gray-300 hidden sm:inline-flex"

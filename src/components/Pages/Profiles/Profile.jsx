@@ -25,7 +25,7 @@ const Profile = () => {
 
                 {/* Profile Info Card */}
                 <Card
-                    className="rounded-2xl md:rounded-3xl shadow-sm border-gray-100 dark:border-gray-800 transition-colors duration-300"
+                    className="rounded-2xl md:rounded-3xl shadow-sm border-gray-100 dark:border-gray-800 transition-colors duration-300 overflow-hidden"
                     styles={{ body: { padding: '24px' } }}
                 >
                     <div className="p-1 md:p-2">
@@ -64,8 +64,8 @@ const Profile = () => {
 
                 {/* Friends Card */}
                 <Card
-                    className="rounded-2xl md:rounded-3xl shadow-sm border-gray-100 dark:border-gray-800 transition-colors duration-300"
-                    styles={{ body: { padding: '16px', '@media (min-width: 768px)': { padding: '24px' } } }}
+                    className="rounded-2xl md:rounded-3xl shadow-sm border-gray-100 dark:border-gray-800 transition-colors duration-300 overflow-hidden"
+                    styles={{ body: { padding: '16px md:24px' } }}
                 >
                     <div className="p-1 md:p-2">
                         <FriendRequestList requests={requests} loading={loadingRequests} />
