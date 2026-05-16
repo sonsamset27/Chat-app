@@ -1,18 +1,22 @@
 import React from 'react'
 import { Outlet } from 'react-router-dom'
-import { Layout } from 'antd'
 import Sidebar from './Sidebar'
-
-const { Content } = Layout
 
 const ChatApp = () => {
     return (
-        <Layout className="h-screen w-screen overflow-hidden flex flex-row transition-colors duration-300">
-            <Sidebar />
-            <Content className="flex-1 overflow-y-auto rounded-[0]">
+        // height: 100dvh cho Safari mobile
+        // Mobile: flex-col — Sidebar nằm dưới (order-2), Content trên (order-1)
+        // md+ : flex-row — Sidebar bên trái, Content bên phải
+        <div className="flex flex-col md:flex-row h-[100dvh] w-screen overflow-hidden bg-white dark:bg-[#1a1b26] transition-colors duration-300">
+            {/* Content phải đặt TRƯỚC Sidebar trong DOM để dùng order trên mobile */}
+            <div className="flex-1 overflow-y-auto overflow-x-hidden order-1 md:order-2">
                 <Outlet />
-            </Content>
-        </Layout>
+            </div>
+            {/* Sidebar: order-2 → nằm dưới cùng trên mobile */}
+            <div className="order-2 md:order-1 shrink-0">
+                <Sidebar />
+            </div>
+        </div>
     )
 }
 

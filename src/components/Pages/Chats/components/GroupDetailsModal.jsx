@@ -11,7 +11,7 @@ const GroupDetailsModal = ({ isOpen, onClose, conversation }) => {
     const { currentUser } = useAuth()
     const { friends, loading: friendsLoading } = useFriendList(currentUser?.uid)
     const { members, loadingMembers, actionLoading, addMembers, removeMember } = useGroupManagement(conversation?.id, conversation?.participants)
-    
+
     const [activeTab, setActiveTab] = useState('1')
     const [searchText, setSearchText] = useState('')
     const [selectedIds, setSelectedIds] = useState([])
@@ -28,7 +28,7 @@ const GroupDetailsModal = ({ isOpen, onClose, conversation }) => {
     // Filter members for Tab 1
     const filteredMembers = useMemo(() => {
         if (!searchText.trim()) return members
-        return members.filter(m => 
+        return members.filter(m =>
             (m.displayName || m.name || '').toLowerCase().includes(searchText.toLowerCase())
         )
     }, [members, searchText])
@@ -37,16 +37,16 @@ const GroupDetailsModal = ({ isOpen, onClose, conversation }) => {
     const availableFriends = useMemo(() => {
         const existingIds = new Set(conversation?.participants || [])
         const unaddedFriends = friends.filter(f => !existingIds.has(f.userId))
-        
+
         if (!searchText.trim()) return unaddedFriends
-        return unaddedFriends.filter(f => 
+        return unaddedFriends.filter(f =>
             (f.displayName || f.name || '').toLowerCase().includes(searchText.toLowerCase())
         )
     }, [friends, conversation?.participants, searchText])
 
     const handleToggleSelect = (uid) => {
-        setSelectedIds(prev => 
-            prev.includes(uid) 
+        setSelectedIds(prev =>
+            prev.includes(uid)
                 ? prev.filter(id => id !== uid)
                 : [...prev, uid]
         )
@@ -69,8 +69,8 @@ const GroupDetailsModal = ({ isOpen, onClose, conversation }) => {
 
     const renderMembersTab = () => (
         <div className="flex flex-col gap-4">
-            <Input 
-                placeholder="Tìm kiếm thành viên..." 
+            <Input
+                placeholder="Tìm kiếm thành viên..."
                 prefix={<Search size={16} className="text-gray-400" />}
                 value={searchText}
                 onChange={(e) => setSearchText(e.target.value)}
@@ -87,7 +87,7 @@ const GroupDetailsModal = ({ isOpen, onClose, conversation }) => {
                             const isMe = member.id === currentUser?.uid || member.userId === currentUser?.uid
 
                             return (
-                                <List.Item 
+                                <List.Item
                                     className="px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors border-b-0"
                                     actions={[
                                         isAdmin && !isMemberAdmin && !isMe && (
@@ -105,8 +105,8 @@ const GroupDetailsModal = ({ isOpen, onClose, conversation }) => {
                                 >
                                     <List.Item.Meta
                                         avatar={
-                                            <Avatar 
-                                                src={(member.avatar || member.photoURL) ? (member.avatar || member.photoURL) : undefined} 
+                                            <Avatar
+                                                src={(member.avatar || member.photoURL) ? (member.avatar || member.photoURL) : undefined}
                                                 className={`bg-indigo-100 text-indigo-600 font-bold flex items-center justify-center ${!(member.avatar || member.photoURL) ? 'bg-indigo-500 text-white' : ''}`}
                                             >
                                                 {(member.displayName || member.name || 'U').charAt(0).toUpperCase()}
@@ -139,8 +139,8 @@ const GroupDetailsModal = ({ isOpen, onClose, conversation }) => {
 
     const renderAddTab = () => (
         <div className="flex flex-col gap-4">
-            <Input 
-                placeholder="Tìm bạn bè để thêm..." 
+            <Input
+                placeholder="Tìm bạn bè để thêm..."
                 prefix={<Search size={16} className="text-gray-400" />}
                 value={searchText}
                 onChange={(e) => setSearchText(e.target.value)}
@@ -153,14 +153,14 @@ const GroupDetailsModal = ({ isOpen, onClose, conversation }) => {
                     <List
                         dataSource={availableFriends}
                         renderItem={(friend) => (
-                            <List.Item 
+                            <List.Item
                                 className="px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer transition-colors border-b-0"
                                 onClick={() => handleToggleSelect(friend.userId)}
                             >
                                 <List.Item.Meta
                                     avatar={
-                                        <Avatar 
-                                            src={(friend.avatar || friend.photoURL) ? (friend.avatar || friend.photoURL) : undefined} 
+                                        <Avatar
+                                            src={(friend.avatar || friend.photoURL) ? (friend.avatar || friend.photoURL) : undefined}
                                             className={`bg-indigo-100 text-indigo-600 font-bold flex items-center justify-center ${!(friend.avatar || friend.photoURL) ? 'bg-indigo-500 text-white' : ''}`}
                                         >
                                             {(friend.displayName || friend.name || 'U').charAt(0).toUpperCase()}
@@ -178,9 +178,9 @@ const GroupDetailsModal = ({ isOpen, onClose, conversation }) => {
                 )}
             </div>
             {selectedIds.length > 0 && (
-                <Button 
-                    type="primary" 
-                    icon={<UserPlus size={16} />} 
+                <Button
+                    type="primary"
+                    icon={<UserPlus size={16} />}
                     className="w-full h-10 rounded-xl bg-indigo-600"
                     loading={actionLoading}
                     onClick={handleAddSelected}
@@ -197,11 +197,11 @@ const GroupDetailsModal = ({ isOpen, onClose, conversation }) => {
             open={isOpen}
             onCancel={onClose}
             footer={null}
-            destroyOnClose
+            destroyOnHidden
             className="dark:bg-gray-800"
         >
-            <Tabs 
-                activeKey={activeTab} 
+            <Tabs
+                activeKey={activeTab}
                 onChange={handleTabChange}
                 items={[
                     {

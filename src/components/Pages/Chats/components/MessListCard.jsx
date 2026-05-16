@@ -21,9 +21,9 @@ const MessListCard = ({ message, isSender, highlight = '', onDelete }) => {
         const parts = content.split(new RegExp(`(${escapedHighlight})`, 'gi'))
         return (
             <span>
-                {parts.map((part, i) => 
-                    part.toLowerCase() === highlight.toLowerCase() 
-                        ? <mark key={i} className="bg-yellow-200 text-black rounded px-0.5">{part}</mark> 
+                {parts.map((part, i) =>
+                    part.toLowerCase() === highlight.toLowerCase()
+                        ? <mark key={i} className="bg-yellow-200 text-black rounded px-0.5">{part}</mark>
                         : part
                 )}
             </span>
@@ -42,12 +42,12 @@ const MessListCard = ({ message, isSender, highlight = '', onDelete }) => {
     }
 
     const containerClass = isSender ? "flex justify-end" : "flex justify-start"
-    
+
     // Bubble styles based on sender/receiver
-    const bubbleClass = isSender 
-        ? "bg-gradient-to-br from-[#6366F1] via-[#5B5CE2] to-[#4F46E5] text-white rounded-3xl rounded-tr-sm shadow-lg shadow-indigo-200/50" 
+    const bubbleClass = isSender
+        ? "bg-gradient-to-br from-[#6366F1] via-[#5B5CE2] to-[#4F46E5] text-white rounded-3xl rounded-tr-sm shadow-lg shadow-indigo-200/50"
         : "bg-white dark:bg-[#1f212c] text-gray-700 dark:text-gray-200 border border-gray-100/80 dark:border-gray-800 rounded-3xl rounded-tl-sm shadow-sm"
-    
+
     return (
         <div className={`group flex flex-col gap-2 ${isSender ? 'items-end' : 'items-start'} mb-2 ${message.isPending ? 'opacity-70 grayscale-[0.2]' : ''}`}>
             <div className={`${containerClass} w-full flex items-center gap-2 group/msg`}>
@@ -60,9 +60,9 @@ const MessListCard = ({ message, isSender, highlight = '', onDelete }) => {
                         cancelText="Hủy"
                         okButtonProps={{ danger: true, className: "bg-red-500" }}
                     >
-                        <Button 
-                            type="text" 
-                            size="small" 
+                        <Button
+                            type="text"
+                            size="small"
                             className="opacity-0 group-hover/msg:opacity-100 text-gray-400 hover:text-red-500 transition-all duration-200"
                             icon={<Trash2 size={14} />}
                         />
@@ -78,9 +78,9 @@ const MessListCard = ({ message, isSender, highlight = '', onDelete }) => {
                 ) : (
                     <div className="max-w-[85%] md:max-w-[70%] transition-all duration-300 hover:scale-[1.01] active:scale-[0.98]">
                         <div className="rounded-[24px] overflow-hidden shadow-md border-4 border-white dark:border-[#1f212c] ring-1 ring-gray-100 dark:ring-gray-800">
-                            <Image 
-                                src={url} 
-                                alt="Shared media" 
+                            <Image
+                                src={url}
+                                alt="Shared media"
                                 className="object-cover cursor-pointer hover:brightness-105 transition-all"
                                 style={{ maxHeight: '400px' }}
                                 placeholder={
@@ -93,7 +93,7 @@ const MessListCard = ({ message, isSender, highlight = '', onDelete }) => {
                     </div>
                 )}
             </div>
-            
+
             {/* Metadata (Time and Status) */}
             <div className={`flex items-center gap-2 ${isSender ? 'mr-2' : 'ml-2'} opacity-0 group-hover:opacity-100 transition-all duration-200 translate-y-1 group-hover:translate-y-0`}>
                 <Text className="text-[10px] text-gray-400 dark:text-gray-600 font-medium tracking-tight">

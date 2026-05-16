@@ -1,5 +1,5 @@
 import React from 'react'
-import { Card, Avatar, Typography, Space, Badge, Spin } from 'antd'
+import { Card, Avatar, Typography, Badge, Spin } from 'antd'
 import { useAuth } from '../../../Context/AuthContext'
 import useFriendList from '../../../hooks/useFriendList'
 import useIncomingRequests from '../../../hooks/useIncomingRequests'
@@ -21,44 +21,65 @@ const Profile = () => {
 
     return (
         <div className="h-full flex flex-col bg-white dark:bg-[#1a1b26] shadow-sm overflow-hidden border border-gray-100 dark:border-gray-800 transition-colors duration-300">
-            <div className="flex flex-col gap-3 p-8 overflow-y-auto">
-                <Card className="rounded-3xl shadow-sm mb-6 border-gray-100 dark:border-gray-800 transition-colors duration-300" styles={{ body: { padding: '32px' } }}>
-                    <div className="flex justify-between items-start mb-6">
-                        <Space size="large" align="start">
-                            <Badge dot status={status === 'online' ? 'success' : 'default'} offset={[-8, 85]}>
-                                <Avatar src={avatarUrl || undefined} size={96} className="ring-4 ring-[#F8F9FE] dark:ring-[#1a1b26] bg-[#5B5CE2] transition-colors duration-300">
+            <div className="flex flex-col gap-4 p-4 md:p-8 overflow-y-auto">
+
+                {/* Profile Info Card */}
+                <Card
+                    className="rounded-2xl md:rounded-3xl shadow-sm border-gray-100 dark:border-gray-800 transition-colors duration-300"
+                    styles={{ body: { padding: '24px' } }}
+                >
+                    <div className="p-1 md:p-2">
+                        {/* Avatar + Name row — stacks vertically on mobile */}
+                        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 mb-5">
+                            <Badge >
+                                <Avatar
+                                    src={avatarUrl || undefined}
+                                    size={{ xs: 72, sm: 80, md: 96 }}
+                                    className="ring-4 ring-[#F8F9FE] dark:ring-[#1a1b26] bg-[#5B5CE2] transition-colors duration-300 shrink-0"
+                                >
                                     {displayName.charAt(0).toUpperCase()}
                                 </Avatar>
                             </Badge>
-                            <div className="pt-2">
-                                <Title level={3} className="mb-1!">{displayName}</Title>
+                            <div className="text-center sm:text-left pt-0 sm:pt-2">
+                                <Title level={3} className="!mb-1 !text-xl md:!text-2xl">{displayName}</Title>
                                 <Text type="secondary" className="text-sm">
-                                    {status === 'online' ? 'Đang hoạt động' : 'Ngoại tuyến'} • {email}
+                                    <span className={`inline-flex items-center gap-1.5 mr-2 font-medium ${status === 'online' ? 'text-green-600' : 'text-gray-400'}`}>
+                                        <span className={`w-1.5 h-1.5 rounded-full ${status === 'online' ? 'bg-green-500' : 'bg-gray-300'}`} />
+                                        {status === 'online' ? 'Đang hoạt động' : 'Ngoại tuyến'}
+                                    </span>
+                                    <span className="text-gray-400">{email}</span>
                                 </Text>
                             </div>
-                        </Space>
-                    </div>
+                        </div>
 
-                    <div>
-                        <Title level={5} className="mb-2!">Tiểu sử</Title>
-                        <Paragraph className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed mb-0">
-                            {bio}
-                        </Paragraph>
+                        {/* Bio */}
+                        <div>
+                            <Title level={5} className="!mb-2">Tiểu sử</Title>
+                            <Paragraph className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed mb-0">
+                                {bio}
+                            </Paragraph>
+                        </div>
                     </div>
                 </Card>
 
-                <Card className="rounded-3xl shadow-sm border-gray-100 dark:border-gray-800 transition-colors duration-300" styles={{ body: { padding: '24px' } }}>
-                    <FriendRequestList requests={requests} loading={loadingRequests} />
+                {/* Friends Card */}
+                <Card
+                    className="rounded-2xl md:rounded-3xl shadow-sm border-gray-100 dark:border-gray-800 transition-colors duration-300"
+                    styles={{ body: { padding: '16px', '@media (min-width: 768px)': { padding: '24px' } } }}
+                >
+                    <div className="p-1 md:p-2">
+                        <FriendRequestList requests={requests} loading={loadingRequests} />
 
-                    <div className="flex justify-between items-center mb-6">
-                        <Title level={5} className="mb-0!">Bạn bè ({friends.length})</Title>
+                        <div className="flex justify-between items-center mb-4 mt-4">
+                            <Title level={5} className="!mb-0">Bạn bè ({friends.length})</Title>
+                        </div>
+
+                        {loadingFriends ? (
+                            <div className="flex justify-center py-10"><Spin /></div>
+                        ) : (
+                            <ProfileFriendList friends={friends} />
+                        )}
                     </div>
-
-                    {loadingFriends ? (
-                        <div className="flex justify-center py-10"><Spin /></div>
-                    ) : (
-                        <ProfileFriendList friends={friends} />
-                    )}
                 </Card>
             </div>
         </div>

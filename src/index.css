@@ -1,17 +1,48 @@
 @import "tailwindcss";
 @custom-variant dark (&:is(.dark *));
 
-/* Ant Design Overrides */
-.custom-sidebar-menu.ant-menu-light .ant-menu-item-selected {
-    background-color: white !important;
-    color: #5B5CE2 !important;
-    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-    font-weight: 500;
+/* Use dynamic viewport height to handle mobile browsers (Safari) */
+html, body, #root {
+    height: 100%;
 }
 
-
-
+/* Ant Design Layout overrides */
 .ant-layout-sider-children {
     display: flex;
     flex-direction: column;
+    height: 100%;
 }
+
+/* Custom scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(99, 102, 241, 0.2);
+    border-radius: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(99, 102, 241, 0.4);
+}
+
+/* Ant Design menu item selected override (for any remaining antd Menus) */
+.ant-menu-light .ant-menu-item-selected {
+    background-color: rgba(99, 102, 241, 0.1) !important;
+    color: #5B5CE2 !important;
+    font-weight: 500;
+}
+
+/* Ant Design Sider zero-width override — remove the trigger arrow */
+.ant-layout-sider-zero-width-trigger {
+    display: none !important;
+}
+
+/* Smooth fade animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+.animate-in { animation: fadeIn 0.25s ease forwards; }

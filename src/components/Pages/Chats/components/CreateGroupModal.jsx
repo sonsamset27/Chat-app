@@ -11,7 +11,7 @@ const CreateGroupModal = ({ isOpen, onClose, onGroupCreated }) => {
     const { currentUser } = useAuth()
     const { friends, loading: friendsLoading } = useFriendList(currentUser?.uid)
     const { createGroupChat, loading: creating } = useCreateGroupChat()
-    
+
     const [groupName, setGroupName] = useState('')
     const [searchText, setSearchText] = useState('')
     const [selectedIds, setSelectedIds] = useState([])
@@ -19,14 +19,14 @@ const CreateGroupModal = ({ isOpen, onClose, onGroupCreated }) => {
     // Filter friends by search
     const filteredFriends = useMemo(() => {
         if (!searchText.trim()) return friends
-        return friends.filter(f => 
+        return friends.filter(f =>
             (f.displayName || f.name || '').toLowerCase().includes(searchText.toLowerCase())
         )
     }, [friends, searchText])
 
     const handleToggleSelect = (uid) => {
-        setSelectedIds(prev => 
-            prev.includes(uid) 
+        setSelectedIds(prev =>
+            prev.includes(uid)
                 ? prev.filter(id => id !== uid)
                 : [...prev, uid]
         )
@@ -54,20 +54,20 @@ const CreateGroupModal = ({ isOpen, onClose, onGroupCreated }) => {
             cancelText="Hủy"
             confirmLoading={creating}
             okButtonProps={{ disabled: !groupName.trim() || selectedIds.length < 2, className: 'bg-indigo-600' }}
-            destroyOnClose
+            destroyOnHidden
             className="dark:bg-gray-800"
         >
             <div className="flex flex-col gap-4 py-4">
-                <Input 
-                    placeholder="Nhập tên nhóm..." 
+                <Input
+                    placeholder="Nhập tên nhóm..."
                     value={groupName}
                     onChange={(e) => setGroupName(e.target.value)}
                     size="large"
                     className="rounded-xl"
                 />
-                
-                <Input 
-                    placeholder="Tìm kiếm bạn bè..." 
+
+                <Input
+                    placeholder="Tìm kiếm bạn bè..."
                     prefix={<Search size={16} className="text-gray-400" />}
                     value={searchText}
                     onChange={(e) => setSearchText(e.target.value)}
@@ -81,7 +81,7 @@ const CreateGroupModal = ({ isOpen, onClose, onGroupCreated }) => {
                         <List
                             dataSource={filteredFriends}
                             renderItem={(friend) => (
-                                <List.Item 
+                                <List.Item
                                     className="px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer transition-colors border-b-0"
                                     onClick={() => handleToggleSelect(friend.userId)}
                                 >

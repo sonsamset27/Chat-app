@@ -14,7 +14,7 @@ const { Text } = Typography
 
 const ChatFriendListCard = ({ conversation, active, onClick, searchTerm = '' }) => {
     const { currentUser } = useAuth()
-    const { participants, lastMessageId, updatedAt, isGroup, groupName } = conversation
+    const { participants, lastMessageId, updatedAt, isGroup, groupName, unreadCount } = conversation
     const [otherUser, setOtherUser] = useState(null)
     const [lastMessage, setLastMessage] = useState(null)
 
@@ -57,6 +57,8 @@ const ChatFriendListCard = ({ conversation, active, onClick, searchTerm = '' }) 
         return lastMessage.text
     }
 
+    const isUnread = unreadCount && unreadCount[currentUser?.uid] > 0
+
     return (
         <div
             onClick={onClick}
@@ -78,11 +80,11 @@ const ChatFriendListCard = ({ conversation, active, onClick, searchTerm = '' }) 
                         className="scale-125"
                     >
                         <Avatar 
-                            src={otherUser?.photoURL || otherUser?.avatar} 
+                            src={(otherUser?.photoURL || otherUser?.avatar) ? (otherUser.photoURL || otherUser.avatar) : undefined} 
                             size={52} 
                             className={`shadow-sm ring-2 ring-white dark:ring-gray-800 flex items-center justify-center font-bold text-lg ${(!otherUser?.photoURL && !otherUser?.avatar) ? 'bg-gradient-to-br from-gray-200 via-gray-300 to-gray-400 dark:from-gray-700 dark:to-gray-800 text-white' : ''}`}
                         >
-                            {(otherUser?.displayName || otherUser?.name)?.charAt(0).toUpperCase() || '?'}
+                            {(otherUser?.displayName || otherUser?.name)?.charAt(0)?.toUpperCase() || '?'}
                         </Avatar>
                     </Badge>
                 )}
@@ -90,10 +92,10 @@ const ChatFriendListCard = ({ conversation, active, onClick, searchTerm = '' }) 
 
             <div className="flex-1 overflow-hidden">
                 <div className="flex justify-between items-center mb-1 gap-2">
-                    <Text strong className={`text-[15px] truncate transition-colors ${active ? 'text-indigo-900 dark:text-indigo-200' : 'text-gray-800 dark:text-gray-200'}`}>
+                    <Text strong className={`text-[15px] truncate transition-colors ${active ? 'text-indigo-900 dark:text-indigo-200' : 'text-gray-800 dark:text-gray-200'} ${isUnread ? 'font-black text-black dark:text-white' : ''}`}>
                         {isGroup ? groupName : (otherUser?.displayName || otherUser?.name || 'Loading...')}
                     </Text>
-                    <Text className={`text-[10px] font-medium whitespace-nowrap shrink-0 ${active ? 'text-indigo-400 dark:text-indigo-500' : 'text-gray-400 dark:text-gray-500'}`}>
+                    <Text className={`text-[10px] font-medium whitespace-nowrap shrink-0 ${active ? 'text-indigo-400 dark:text-indigo-500' : 'text-gray-400 dark:text-gray-500'} ${isUnread ? 'text-indigo-600 dark:text-indigo-400 font-bold' : ''}`}>
                         {time}
                     </Text>
                 </div>
@@ -102,7 +104,7 @@ const ChatFriendListCard = ({ conversation, active, onClick, searchTerm = '' }) 
                         <Text className="text-[10px] text-gray-400 dark:text-gray-600 font-bold uppercase shrink-0">You:</Text>
                     )}
                     <Text
-                        className={`text-xs truncate block ${active ? 'text-indigo-600 dark:text-indigo-400 font-medium' : 'text-gray-500 dark:text-gray-400'
+                        className={`text-xs truncate block ${active ? 'text-indigo-600 dark:text-indigo-400 font-medium' : isUnread ? 'text-gray-800 dark:text-gray-100 font-bold' : 'text-gray-500 dark:text-gray-400'
                             }`}
                     >
                         {getMessagePreview()}
@@ -110,8 +112,14 @@ const ChatFriendListCard = ({ conversation, active, onClick, searchTerm = '' }) 
                 </div>
             </div>
 
-            {active && (
-                <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 shadow-lg shadow-indigo-200 animate-pulse" />
+            {isUnread && !active && (
+                <div className="flex shrink-0">
+                    <Badge count={unreadCount[currentUser?.uid]} color="#5B5CE2" />
+                </div>
+            )}
+
+            {active && !isUnread && (
+                <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 shadow-lg shadow-indigo-200 animate-pulse shrink-0" />
             )}
         </div>
     )

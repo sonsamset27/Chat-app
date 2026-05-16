@@ -1,5 +1,5 @@
 import React from 'react'
-import { Avatar, Button, Typography, Space, Empty } from 'antd'
+import { Avatar, Button, Typography, Empty } from 'antd'
 import { MessageSquarePlus } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
@@ -13,41 +13,53 @@ const ProfileFriendList = ({ friends }) => {
     }
 
     return (
-        <Space orientation="vertical" size="middle" className="w-full max-h-[400px] overflow-y-auto pr-2">
+        <div className="flex flex-col gap-1 max-h-[400px] overflow-y-auto pr-1 custom-scrollbar">
             {friends.map((friend) => (
-                <div key={friend.userId} className="flex items-center justify-between p-2 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-                    <Space size="middle">
-                        <Avatar 
-                            src={friend.avatar || undefined} 
-                            size={44} 
-                            className="bg-[#5B5CE2]"
-                        >
-                            {friend.name?.charAt(0).toUpperCase()}
-                        </Avatar>
-                        <div>
-                            <Text strong className="block text-sm">{friend.name}</Text>
-                            <Text type="secondary" className="text-[10px]">
+                <div
+                    key={friend.userId}
+                    className="flex items-center gap-3 p-2 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
+                >
+                    {/* Avatar */}
+                    <Avatar
+                        src={friend.avatar || undefined}
+                        size={44}
+                        className="bg-[#5B5CE2] shrink-0"
+                    >
+                        {friend.name?.charAt(0).toUpperCase()}
+                    </Avatar>
+
+                    {/* Name + status — min-w-0 prevents text from going vertical */}
+                    <div className="flex-1 min-w-0 overflow-hidden">
+                        <Text strong className="block text-sm truncate">{friend.name}</Text>
+                        <div className="flex items-center gap-1">
+                            <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${friend.status === 'online' ? 'bg-green-500' : 'bg-gray-300'}`} />
+                            <Text type="secondary" className="text-[11px] whitespace-nowrap">
                                 {friend.status === 'online' ? 'Đang hoạt động' : 'Ngoại tuyến'}
                             </Text>
                         </div>
-                    </Space>
-                    <Space size="middle">
-                        <Button 
-                            type="text" 
-                            icon={<MessageSquarePlus size={18} />} 
-                            className="text-gray-400 hover:text-[#5B5CE2] hover:bg-blue-50 dark:hover:bg-blue-900/30" 
+                    </div>
+
+                    {/* Action buttons */}
+                    <div className="flex items-center gap-1 shrink-0">
+                        <Button
+                            type="text"
+                            size="small"
+                            icon={<MessageSquarePlus size={16} />}
+                            className="text-gray-400 hover:text-[#5B5CE2] hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg"
                             onClick={() => navigate('/chats')}
+                            title="Nhắn tin"
                         />
-                        <Button 
-                            className="rounded-lg text-xs font-bold text-gray-600 dark:text-gray-300"
+                        <Button
+                            size="small"
+                            className="rounded-lg text-xs font-bold text-gray-600 dark:text-gray-300 hidden sm:inline-flex"
                             onClick={() => navigate(`/profile/${friend.userId}`)}
                         >
                             Trang cá nhân
                         </Button>
-                    </Space>
+                    </div>
                 </div>
             ))}
-        </Space>
+        </div>
     )
 }
 

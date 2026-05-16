@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { Layout, Avatar, Badge, Input, Button, Typography, Divider, Spin, Empty, Upload, Popover } from 'antd'
-import { Search, Bell, MoreVertical, Paperclip, Smile, Send, User, Users, ChevronUp, Info } from 'lucide-react'
+import { Avatar, Badge, Input, Button, Typography, Spin, Empty, Upload, Popover, Popconfirm, message } from 'antd'
+import { Search, Paperclip, Smile, Send, User, Users, ChevronUp, Info, Trash2, ArrowLeft } from 'lucide-react'
 import { useAuth } from '../../../Context/AuthContext'
 import useConversations from '../../../hooks/useConversations'
 import useMessages from '../../../hooks/useMessages'
@@ -13,15 +13,14 @@ import EmojiPicker from 'emoji-picker-react'
 import { useNavigate } from 'react-router-dom'
 
 import { db } from '../../../firebase/config'
-import { doc, onSnapshot, updateDoc } from 'firebase/firestore'
+import { doc, onSnapshot, updateDoc, deleteDoc } from 'firebase/firestore'
 
-const { Sider, Content } = Layout
 const { Text, Title } = Typography
 
 const Chats = () => {
     const { currentUser } = useAuth()
     const { conversations, loading: loadingConvs } = useConversations()
-    const [activeConvId, setActiveConvId] = useState(null)
+    const [activeConvId, setActiveConvId] = useState(() => localStorage.getItem('activeConvId') || null)
     const [searchText, setSearchText] = useState('')
     const [inputMsg, setInputMsg] = useState('')
     const messagesEndRef = useRef(null)
@@ -36,20 +35,27 @@ const Chats = () => {
     const [isCreateGroupOpen, setIsCreateGroupOpen] = useState(false)
     const [isGroupDetailsOpen, setIsGroupDetailsOpen] = useState(false)
     const [messageSearchText, setMessageSearchText] = useState('')
+    const [showMobileSearch, setShowMobileSearch] = useState(false)
 
-    // Listen to Active Other User's Profile
+    // Sync activeConvId to localStorage
+    useEffect(() => {
+        if (activeConvId) {
+            localStorage.setItem('activeConvId', activeConvId)
+        } else {
+            localStorage.removeItem('activeConvId')
+        }
+    }, [activeConvId])
+
+    // Listen to Active Other User's Profile + reset unread count
     useEffect(() => {
         if (!activeConversation || !currentUser) {
             setActiveOtherUser(null)
             return
         }
 
-        // Reset unread count for current user
         if (activeConversation.unreadCount?.[currentUser.uid] > 0) {
             const convRef = doc(db, 'CONVERSATIONS', activeConvId)
-            updateDoc(convRef, {
-                [`unreadCount.${currentUser.uid}`]: 0
-            })
+            updateDoc(convRef, { [`unreadCount.${currentUser.uid}`]: 0 })
         }
 
         const otherUid = activeConversation?.participants?.find(uid => uid !== currentUser?.uid)
@@ -61,35 +67,40 @@ const Chats = () => {
         return () => unsub()
     }, [activeConversation?.id, currentUser?.uid])
 
+    const handleDeleteConversation = async () => {
+        if (!activeConversation) return
+        try {
+            await deleteDoc(doc(db, 'CONVERSATIONS', activeConversation.id))
+            setActiveConvId(null)
+            message.success("Đã xóa cuộc trò chuyện")
+        } catch (error) {
+            message.error("Không thể xóa cuộc trò chuyện")
+        }
+    }
+
     const scrollToBottom = (behavior = "smooth") => {
         messagesEndRef.current?.scrollIntoView({ behavior })
     }
 
-    // Monitor scroll position to show/hide jump-to-bottom button
     const handleScroll = (e) => {
         const { scrollTop, scrollHeight, clientHeight } = e.currentTarget
-        const isNearBottom = scrollHeight - scrollTop - clientHeight < 200
-        setShowScrollBtn(!isNearBottom)
+        setShowScrollBtn(scrollHeight - scrollTop - clientHeight > 200)
     }
 
     useEffect(() => {
-        // Only auto-scroll if we are near bottom or if it's the initial load
-        if (messages.length > 0 && !showScrollBtn) {
-            scrollToBottom("smooth")
-        }
+        if (messages.length > 0 && !showScrollBtn) scrollToBottom("smooth")
     }, [messages.length])
 
     const handleSend = async () => {
         if (!inputMsg.trim()) return
         const msg = inputMsg
-        setInputMsg('') // Clear input immediately
+        setInputMsg('')
         await sendMessage(msg)
-        scrollToBottom("smooth") // Scroll immediately
+        scrollToBottom("smooth")
     }
 
     const handleImageUpload = async (file) => {
         if (!file) return
-
         try {
             const url = await uploadImage(file)
             if (url) {
@@ -102,36 +113,49 @@ const Chats = () => {
     }
 
     return (
-        <Layout className="h-full flex flex-row overflow-hidden bg-white dark:bg-[#1a1b26] transition-colors duration-300">
-            {/* Chat List */}
-            <Sider width={340} className="bg-white dark:bg-[#1a1b26] border-r border-gray-100 dark:border-gray-800 flex flex-col shrink-0 transition-colors duration-300" theme="light">
-                <div className="p-8 pb-4">
-                    <div className="flex justify-between items-center mb-8">
-                        <Title level={2} className="!m-0 !text-2xl !font-black bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent dark:from-indigo-400 dark:to-violet-400">
+        // Full height layout, flex row always (both list and chat visible on md+)
+        // On mobile: only one panel visible at a time
+        <div className="flex flex-row h-full overflow-hidden bg-white dark:bg-[#1a1b26]">
+
+            {/* ===== CONVERSATION LIST ===== */}
+            {/* Mobile: full width, hidden when chat is open */}
+            {/* md+: fixed width sidebar, always visible */}
+            <div className={`
+                flex flex-col h-full
+                bg-white dark:bg-[#1a1b26]
+                border-r border-gray-100 dark:border-gray-800
+                transition-colors duration-300 shrink-0
+                w-full md:w-[300px] lg:w-[340px]
+                ${activeConvId ? 'hidden md:flex' : 'flex'}
+            `}>
+                {/* Header */}
+                <div className="px-5 lg:px-6 pt-5 lg:pt-6 pb-4 shrink-0">
+                    <div className="flex justify-between items-center mb-4">
+                        <Title level={2} className="!m-0 !text-xl lg:!text-2xl !font-black bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent dark:from-indigo-400 dark:to-violet-400">
                             Chats
                         </Title>
                         <Button
                             type="text"
-                            icon={<Users size={22} className="text-indigo-600 dark:text-indigo-400" />}
+                            icon={<Users size={20} className="text-indigo-600 dark:text-indigo-400" />}
                             onClick={() => setIsCreateGroupOpen(true)}
                             className="flex items-center justify-center hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-xl"
                             title="Tạo nhóm chat"
                         />
                     </div>
-                    {/*đoạn tìm kiếm bạn bè trong thanh hội thoại*/}
                     <Input
                         placeholder="Tìm kiếm hội thoại..."
-                        prefix={<Search size={18} className="text-gray-400" />}
-                        className="rounded-2xl border-none bg-gray-50 dark:bg-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-800 focus:bg-white dark:focus:bg-gray-700 transition-all py-3 px-4 text-gray-600 dark:text-gray-300"
+                        prefix={<Search size={15} className="text-gray-400" />}
+                        className="rounded-2xl border-none bg-gray-50 dark:bg-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all text-sm"
                         onChange={(e) => setSearchText(e.target.value)}
                     />
                 </div>
 
-                <div className="flex-1 overflow-y-auto px-4 pb-4 space-y-2 custom-scrollbar">
+                {/* List */}
+                <div className="flex-1 overflow-y-auto px-3 lg:px-4 pb-4 space-y-1 custom-scrollbar">
                     {loadingConvs ? (
                         <div className="flex flex-col items-center justify-center h-40 gap-3">
                             <Spin size="small" />
-                            <Text className="text-[10px] text-gray-400 dark:text-gray-600 font-bold uppercase tracking-widest">Loading chats</Text>
+                            <Text className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Đang tải...</Text>
                         </div>
                     ) : conversations.length > 0 ? (
                         conversations.map((conv) => (
@@ -144,112 +168,190 @@ const Chats = () => {
                             />
                         ))
                     ) : (
-                        <div className="flex flex-col items-center justify-center h-60 opacity-40 dark:opacity-20">
+                        <div className="flex flex-col items-center justify-center h-60 opacity-40">
                             <Empty description={<span className="text-gray-400 font-medium">Chưa có đoạn hội thoại nào</span>} />
                         </div>
                     )}
                 </div>
-            </Sider>
+            </div>
 
-            {/* Active Chat Area */}
-            <Content className="flex flex-col bg-[#F3F4FB] dark:bg-[#0f1016] h-full relative overflow-hidden transition-colors duration-300">
+            {/* ===== ACTIVE CHAT AREA ===== */}
+            {/* Mobile: full width, hidden when no chat selected */}
+            {/* md+: fills remaining space, always visible */}
+            <div className={`
+                flex flex-col h-full overflow-hidden
+                flex-1
+                bg-[#F3F4FB] dark:bg-[#0f1016]
+                transition-colors duration-300
+                ${!activeConvId ? 'hidden md:flex' : 'flex'}
+            `}>
                 {activeConversation ? (
-                    <div className="flex flex-col h-full bg-white/40 dark:bg-black/10 backdrop-blur-[2px] relative z-0">
+                    <div className="flex flex-col h-full">
+
                         {/* Chat Header */}
-                        <div className="px-8 py-5 border-b border-gray-100 dark:border-gray-800 bg-white/90 dark:bg-[#1a1b26]/90 backdrop-blur-xl flex justify-between items-center sticky top-0 z-20 shadow-sm transition-colors duration-300">
-                            <div className="flex items-center gap-4 group cursor-pointer">
-                                {activeConversation?.isGroup ? (
-                                    <Avatar size={48} className="bg-gradient-to-br from-indigo-400 to-indigo-600 shadow-sm ring-2 ring-indigo-50 dark:ring-indigo-900/30 flex items-center justify-center text-white">
-                                        <Users size={24} />
-                                    </Avatar>
-                                ) : (
-                                    <Badge dot status={activeOtherUser?.status === 'online' ? 'success' : 'default'} offset={[-4, 34]} size="large">
-                                        <Avatar 
-                                            src={activeOtherUser?.photoURL || activeOtherUser?.avatar} 
-                                            size={48} 
-                                            className={`ring-2 ring-indigo-50 dark:ring-indigo-900/30 transition-all group-hover:ring-indigo-200 flex items-center justify-center font-bold text-lg ${(!activeOtherUser?.photoURL && !activeOtherUser?.avatar) ? 'bg-gradient-to-br from-gray-200 via-gray-300 to-gray-400 dark:from-gray-700 dark:to-gray-800 text-white' : ''}`}
-                                        >
-                                            {(activeOtherUser?.displayName || activeOtherUser?.name)?.charAt(0).toUpperCase() || '?'}
-                                        </Avatar>
-                                    </Badge>
-                                )}
-                                <div>
-                                    <Title level={5} className="!mb-0.5 !text-[15px] !font-bold text-gray-800 dark:text-gray-100 tracking-tight transition-colors">
-                                        {activeConversation?.isGroup ? activeConversation.groupName : (activeOtherUser?.displayName || activeOtherUser?.name || 'Loading...')}
-                                    </Title>
-                                    {!activeConversation?.isGroup && (
-                                        <div className="flex items-center gap-1.5">
-                                            <div className={`w-2 h-2 rounded-full ${activeOtherUser?.status === 'online' ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-600'}`} />
-                                            <Text className={`text-[11px] ${activeOtherUser?.status === 'online' ? 'text-green-600' : 'text-gray-400 dark:text-gray-500'} font-bold uppercase tracking-wider transition-colors`}>
-                                                {activeOtherUser?.status === 'online' ? 'Online' : 'Offline'}
-                                            </Text>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                            <div className="flex items-center gap-5">
-                                <div className="flex items-center gap-2">
-                                    <Input
-                                        placeholder="Tìm kiếm tin nhắn..."
-                                        prefix={<Search size={16} className="text-gray-400" />}
-                                        value={messageSearchText}
-                                        onChange={(e) => setMessageSearchText(e.target.value)}
-                                        className="rounded-2xl border-none bg-gray-50 dark:bg-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-800 focus:bg-white dark:focus:bg-gray-700 transition-all w-[200px]"
+                        <div className="
+                            border-b border-gray-100 dark:border-gray-800
+                            bg-white dark:bg-[#1a1b26]
+                            shadow-sm shrink-0
+                        ">
+                            {/* Main header row */}
+                            <div className="flex justify-between items-center px-4 md:px-5 lg:px-8 py-3 md:py-4">
+                                {/* Left: back button + avatar + name */}
+                                <div className="flex items-center gap-2 md:gap-3 min-w-0 flex-1 overflow-hidden pr-2">
+                                    {/* Back button — mobile only */}
+                                    <Button
+                                        type="text"
+                                        icon={<ArrowLeft size={20} />}
+                                        onClick={() => setActiveConvId(null)}
+                                        className="md:hidden flex items-center justify-center p-1 text-gray-500 hover:text-indigo-600 shrink-0"
                                     />
+
+                                    {/* Avatar */}
+                                    {activeConversation?.isGroup ? (
+                                        <Avatar
+                                            size={40}
+                                            className="bg-gradient-to-br from-indigo-400 to-indigo-600 shadow-sm ring-2 ring-indigo-50 dark:ring-indigo-900/30 shrink-0 flex items-center justify-center text-white"
+                                        >
+                                            <Users size={20} />
+                                        </Avatar>
+                                    ) : (
+                                        <Badge dot status={activeOtherUser?.status === 'online' ? 'success' : 'default'} offset={[-3, 30]}>
+                                            <Avatar
+                                                src={(activeOtherUser?.photoURL || activeOtherUser?.avatar) || undefined}
+                                                size={40}
+                                                className={`ring-2 ring-indigo-50 dark:ring-indigo-900/30 shrink-0 flex items-center justify-center font-bold ${(!activeOtherUser?.photoURL && !activeOtherUser?.avatar) ? 'bg-gradient-to-br from-indigo-400 to-violet-500 text-white' : ''}`}
+                                            >
+                                                {(activeOtherUser?.displayName || activeOtherUser?.name)?.charAt(0)?.toUpperCase() || '?'}
+                                            </Avatar>
+                                        </Badge>
+                                    )}
+
+                                    {/* Name + status — overflow-hidden prevents vertical text glitch */}
+                                    <div className="min-w-0 overflow-hidden max-w-[110px] sm:max-w-[180px] lg:max-w-none">
+                                        <p className="text-[14px] lg:text-[15px] font-bold text-gray-800 dark:text-gray-100 truncate leading-tight m-0">
+                                            {activeConversation?.isGroup
+                                                ? activeConversation.groupName
+                                                : (activeOtherUser?.displayName || activeOtherUser?.name || 'Đang tải...')}
+                                        </p>
+                                        {!activeConversation?.isGroup && (
+                                            <div className="flex items-center gap-1 overflow-hidden">
+                                                <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${activeOtherUser?.status === 'online' ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-600'}`} />
+                                                <span className={`hidden lg:inline text-[11px] font-semibold whitespace-nowrap ${activeOtherUser?.status === 'online' ? 'text-green-600' : 'text-gray-400'}`}>
+                                                    {activeOtherUser?.status === 'online' ? 'Online' : 'Offline'}
+                                                </span>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Right: actions */}
+                                <div className="flex items-center gap-1 shrink-0 ml-2">
+                                    {/* Search input — hidden on mobile, shown from sm+ */}
+                                    <div className="hidden sm:block">
+                                        <Input
+                                            placeholder="Tìm tin nhắn..."
+                                            prefix={<Search size={13} className="text-gray-400" />}
+                                            value={messageSearchText}
+                                            onChange={(e) => setMessageSearchText(e.target.value)}
+                                            className="rounded-2xl border-none bg-gray-50 dark:bg-gray-800/50 text-sm w-[90px] md:w-[120px] lg:w-[200px]"
+                                        />
+                                    </div>
+
+                                    {/* Search toggle icon — mobile only */}
+                                    <Button
+                                        type="text"
+                                        icon={<Search size={18} />}
+                                        onClick={() => setShowMobileSearch(prev => !prev)}
+                                        className={`block lg:!hidden rounded-xl ${showMobileSearch ? 'text-indigo-600 bg-indigo-50 dark:bg-indigo-900/30' : 'text-gray-400 hover:text-indigo-600'}`}
+                                        title="Tìm kiếm tin nhắn"
+                                    />
+
                                     {!activeConversation?.isGroup && activeOtherUser?.id && (
-                                        <Button 
-                                            type="text" 
-                                            icon={<User size={20} />} 
+                                        <Button
+                                            type="text"
+                                            icon={<User size={18} />}
                                             onClick={() => navigate(`/profile/${activeOtherUser.id}`)}
-                                            className="text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-xl" 
+                                            className="text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-xl"
                                             title="Trang cá nhân"
                                         />
                                     )}
+
                                     {activeConversation?.isGroup && (
-                                        <Button 
-                                            type="text" 
-                                            icon={<Info size={20} />} 
+                                        <Button
+                                            type="text"
+                                            icon={<Info size={18} />}
                                             onClick={() => setIsGroupDetailsOpen(true)}
-                                            className="text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-xl" 
+                                            className="text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-xl"
                                             title="Thông tin nhóm"
                                         />
                                     )}
+
+                                    <Popconfirm
+                                        title="Xóa cuộc trò chuyện?"
+                                        description="Hành động này sẽ xóa đoạn chat đối với tất cả thành viên."
+                                        onConfirm={handleDeleteConversation}
+                                        okText="Xóa"
+                                        cancelText="Hủy"
+                                        okButtonProps={{ danger: true }}
+                                    >
+                                        <Button
+                                            type="text"
+                                            danger
+                                            icon={<Trash2 size={18} />}
+                                            className="hover:bg-red-50 dark:hover:bg-red-900/30 rounded-xl"
+                                            title="Xóa đoạn chat"
+                                        />
+                                    </Popconfirm>
                                 </div>
                             </div>
+
+                            {/* Mobile search bar — slides in below header when toggled */}
+                            {showMobileSearch && (
+                                <div className="sm:hidden px-4 pb-3">
+                                    <Input
+                                        autoFocus
+                                        placeholder="Tìm kiếm trong cuộc trò chuyện..."
+                                        prefix={<Search size={14} className="text-gray-400" />}
+                                        suffix={
+                                            messageSearchText ? (
+                                                <button
+                                                    onClick={() => setMessageSearchText('')}
+                                                    className="text-gray-400 hover:text-gray-600 border-none bg-transparent cursor-pointer text-xs font-medium"
+                                                >
+                                                    Xóa
+                                                </button>
+                                            ) : null
+                                        }
+                                        value={messageSearchText}
+                                        onChange={(e) => setMessageSearchText(e.target.value)}
+                                        className="rounded-2xl border border-indigo-100 dark:border-indigo-800 bg-indigo-50/50 dark:bg-indigo-900/20 focus-within:border-indigo-300 transition-all"
+                                    />
+                                </div>
+                            )}
                         </div>
 
-                        {/* Messages Area */}
+                        {/* Messages List */}
                         <div
-                            className="flex-1 overflow-y-auto p-8 flex flex-col gap-2 scroll-smooth"
+                            className="flex-1 overflow-y-auto px-4 md:px-6 lg:px-8 py-4 lg:py-6 flex flex-col gap-2 custom-scrollbar"
                             onScroll={handleScroll}
                             ref={scrollRef}
                         >
-                            {/* Load More Button */}
+                            {/* Load more */}
                             {hasMore && (
-                                <div className="flex justify-center pb-8 pt-4">
+                                <div className="flex justify-center pb-4">
                                     <button
                                         onClick={loadMore}
                                         disabled={loadingMore}
-                                        className="flex items-center gap-2 px-6 py-2.5 bg-white dark:bg-gray-800/80 border border-gray-100 dark:border-gray-700/50 rounded-full shadow-sm hover:shadow-md hover:border-indigo-200 dark:hover:border-indigo-500/30 text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all active:scale-95 disabled:opacity-50 group"
+                                        className="flex items-center gap-2 px-5 py-2 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-full text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 text-[11px] font-bold uppercase tracking-wider transition-all disabled:opacity-50"
                                     >
-                                        {loadingMore ? (
-                                            <Spin size="small" />
-                                        ) : (
-                                            <ChevronUp size={16} className="group-hover:-translate-y-0.5 transition-transform" />
-                                        )}
-                                        <span className="text-[11px] font-bold uppercase tracking-wider">
-                                            {loadingMore ? 'Đang tải...' : 'Xem tin nhắn cũ hơn'}
-                                        </span>
+                                        {loadingMore ? <Spin size="small" /> : <ChevronUp size={14} />}
+                                        {loadingMore ? 'Đang tải...' : 'Xem tin nhắn cũ hơn'}
                                     </button>
                                 </div>
                             )}
 
                             {loadingMsgs && messages.length === 0 ? (
-                                <div className="flex flex-col items-center justify-center flex-1 gap-4">
-                                    <div className="flex flex-col items-center justify-center h-full opacity-40">
-                                        <Spin />
-                                    </div>
-                                </div>
+                                <div className="flex-1 flex items-center justify-center"><Spin /></div>
                             ) : (
                                 messages
                                     .filter(msg => !messageSearchText || (msg.text && msg.text.toLowerCase().includes(messageSearchText.toLowerCase())))
@@ -263,25 +365,23 @@ const Chats = () => {
                                         />
                                     ))
                             )}
-                            <div ref={messagesEndRef} className="h-4" />
+                            <div ref={messagesEndRef} className="h-2" />
                         </div>
 
-                        {/* Floating Scroll Button */}
+                        {/* Scroll to bottom floating button */}
                         {showScrollBtn && (
-                            <Button
-                                type="primary"
-                                shape="circle"
-                                icon={<Send size={18} className="rotate-90" />}
+                            <button
                                 onClick={() => scrollToBottom("smooth")}
-                                className="absolute bottom-32 right-12 z-20 shadow-xl shadow-indigo-200/50 hover:scale-110 transition-transform bg-indigo-600 border-none w-12 h-12 flex items-center justify-center"
-                            />
+                                className="absolute bottom-24 right-6 z-20 w-10 h-10 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-200 dark:shadow-none flex items-center justify-center transition-all hover:scale-110 border-none cursor-pointer"
+                            >
+                                <ChevronUp size={18} className="rotate-180" />
+                            </button>
                         )}
 
-                        {/* Message Input */}
-                        <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-[#1a1b26]">
-                            <div className="max-w-4xl mx-auto flex items-center gap-3">
-
-                                {/* Upload */}
+                        {/* Message Input Bar */}
+                        <div className="px-3 md:px-5 py-3 border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-[#1a1b26] shrink-0">
+                            <div className="max-w-4xl mx-auto flex items-center gap-2">
+                                {/* Upload button */}
                                 <Upload
                                     showUploadList={false}
                                     customRequest={({ file, onSuccess }) => {
@@ -290,70 +390,70 @@ const Chats = () => {
                                     }}
                                     disabled={uploading}
                                 >
-                                    <button
-                                        className="w-11 h-11 flex items-center justify-center rounded-xl text-gray-500 hover:text-indigo-500 hover:bg-gray-100 dark:hover:bg-gray-800 transition"
-                                    >
-                                        <Paperclip size={20} />
+                                    <button className="w-10 h-10 flex items-center justify-center rounded-xl text-gray-400 hover:text-indigo-500 hover:bg-gray-100 dark:hover:bg-gray-800 transition shrink-0 border-none bg-transparent cursor-pointer">
+                                        <Paperclip size={18} />
                                     </button>
                                 </Upload>
 
                                 {/* Input */}
                                 <div className="flex-1 relative">
                                     <Input
-                                        placeholder="Type a message..."
+                                        placeholder="Nhập tin nhắn..."
                                         value={inputMsg}
                                         onChange={(e) => setInputMsg(e.target.value)}
                                         onPressEnter={handleSend}
-                                        className="h-11 rounded-2xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-4 pr-12 text-[15px]"
+                                        className="h-10 md:h-11 rounded-2xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-4 pr-10 text-sm md:text-[15px]"
                                     />
-
-                                    {/* Emoji */}
                                     <Popover
                                         content={
-                                            <EmojiPicker 
-                                                onEmojiClick={(emojiData) => setInputMsg(prev => prev + emojiData.emoji)} 
+                                            <EmojiPicker
+                                                onEmojiClick={(emojiData) => setInputMsg(prev => prev + emojiData.emoji)}
                                                 theme="auto"
                                             />
                                         }
                                         trigger="click"
                                         placement="topLeft"
                                     >
-                                        <button className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-indigo-500 transition">
-                                            <Smile size={18} />
+                                        <button className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-indigo-500 transition border-none bg-transparent cursor-pointer">
+                                            <Smile size={17} />
                                         </button>
                                     </Popover>
                                 </div>
 
-                                {/* Send */}
+                                {/* Send button */}
                                 <button
                                     onClick={handleSend}
-                                    className="w-11 h-11 shrink-0 rounded-xl flex items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white transition"
+                                    className="w-10 h-10 md:w-11 md:h-11 shrink-0 rounded-xl flex items-center justify-center bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white transition border-none cursor-pointer"
                                 >
-                                    <Send size={18} />
+                                    <Send size={17} />
                                 </button>
-
                             </div>
                         </div>
                     </div>
                 ) : (
-                    <div className="flex-1 flex items-center justify-center">
-                        <Empty description="Chọn một cuộc trò chuyện để bắt đầu" />
+                    /* Empty state — visible on md+ when no chat selected */
+                    <div className="flex-1 flex flex-col items-center justify-center gap-3 text-center p-8 opacity-60">
+                        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-100 to-violet-100 dark:from-indigo-900/30 dark:to-violet-900/30 flex items-center justify-center">
+                            <Users size={30} className="text-indigo-500" />
+                        </div>
+                        <Title level={5} className="!mb-1 !text-gray-500 dark:!text-gray-400">Chưa chọn cuộc trò chuyện</Title>
+                        <Text className="text-gray-400 text-sm max-w-xs">Chọn một cuộc trò chuyện từ danh sách bên trái để bắt đầu nhắn tin</Text>
                     </div>
                 )}
-            </Content>
+            </div>
 
-            <CreateGroupModal 
-                isOpen={isCreateGroupOpen} 
-                onClose={() => setIsCreateGroupOpen(false)} 
+            {/* Modals */}
+            <CreateGroupModal
+                isOpen={isCreateGroupOpen}
+                onClose={() => setIsCreateGroupOpen(false)}
                 onGroupCreated={(newId) => setActiveConvId(newId)}
             />
-
             <GroupDetailsModal
                 isOpen={isGroupDetailsOpen}
                 onClose={() => setIsGroupDetailsOpen(false)}
                 conversation={activeConversation}
             />
-        </Layout>
+        </div>
     )
 }
 

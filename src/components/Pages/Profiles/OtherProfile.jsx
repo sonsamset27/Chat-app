@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { Card, Avatar, Button, Typography, Space, Badge, Spin, Result } from 'antd'
+import { Card, Avatar, Button, Typography, Badge, Spin, Result } from 'antd'
 import { MessageSquare, UserPlus, UserMinus, UserCheck, ShieldAlert, Shield, ArrowLeft } from 'lucide-react'
 import { doc, getDoc } from 'firebase/firestore'
 import { db } from '../../../firebase/config'
@@ -14,7 +14,7 @@ const OtherProfile = () => {
     const { uid } = useParams()
     const navigate = useNavigate()
     const { currentUser } = useAuth()
-    
+
     const [profile, setProfile] = useState(null)
     const [loadingProfile, setLoadingProfile] = useState(true)
     const { friendship, loading: loadingFriendship, sendRequest, acceptRequest, rejectRequest, unfriend, blockUser, unblockUser } = useFriendship(uid)
@@ -51,18 +51,15 @@ const OtherProfile = () => {
     const amIRequester = friendship?.requesterId === currentUser?.uid
     const amIBlocker = friendship?.blockerId === currentUser?.uid
 
-    const handleMessage = () => {
-        navigate('/chats')
-    }
-
     return (
-        <div className="h-full flex flex-col bg-white dark:bg-[#1a1b26] rounded-tl-[30px] shadow-sm overflow-hidden border border-gray-100 dark:border-gray-800 transition-colors duration-300">
-            <div className="flex flex-col gap-3 p-8 overflow-y-auto">
+        <div className="h-full flex flex-col bg-white dark:bg-[#1a1b26] shadow-sm overflow-hidden border border-gray-100 dark:border-gray-800 transition-colors duration-300">
+            <div className="flex flex-col gap-4 p-4 md:p-8 overflow-y-auto">
+
                 {/* Back Button */}
-                <div className="mb-4">
-                    <Button 
-                        type="text" 
-                        icon={<ArrowLeft size={20} />} 
+                <div>
+                    <Button
+                        type="text"
+                        icon={<ArrowLeft size={18} />}
                         className="flex items-center gap-2 text-gray-500 hover:text-[#5B5CE2] px-0 font-medium"
                         onClick={() => navigate(-1)}
                     >
@@ -70,117 +67,130 @@ const OtherProfile = () => {
                     </Button>
                 </div>
 
-                <Card className="rounded-3xl shadow-sm mb-6 border-gray-100 dark:border-gray-800 transition-colors duration-300" styles={{ body: { padding: '32px' } }}>
-                    <div className="flex justify-between items-start mb-6">
-                        <Space size="large" align="start">
-                            <Badge dot status={profile.status === 'online' ? 'success' : 'default'} offset={[-8, 85]}>
-                                <Avatar 
-                                    src={profile.avatar || undefined} 
-                                    size={96} 
-                                    className="ring-4 ring-[#F8F9FE] dark:ring-[#1a1b26] bg-[#5B5CE2] transition-colors duration-300"
-                                >
-                                    {profile.name?.charAt(0).toUpperCase()}
-                                </Avatar>
-                            </Badge>
-                            <div className="pt-2">
-                                <Title level={3} className="mb-1!">{profile.name}</Title>
-                                <Text type="secondary" className="text-sm">
-                                    {profile.status === 'online' ? 'Đang hoạt động' : 'Ngoại tuyến'}
-                                </Text>
-                            </div>
-                        </Space>
-
-                        <Space>
-                            {isBlocked ? (
-                                amIBlocker ? (
-                                    <Button 
-                                        danger 
-                                        icon={<Shield size={18} />} 
-                                        className="rounded-xl font-bold"
-                                        onClick={unblockUser}
+                {/* Profile Info Card */}
+                <Card
+                    className="rounded-2xl md:rounded-3xl shadow-sm border-gray-100 dark:border-gray-800 transition-colors duration-300"
+                >
+                    <div className="p-1 md:p-2">
+                        {/* Avatar + Info + Actions */}
+                        {/* On mobile: stacks vertically centered */}
+                        {/* On sm+: avatar & info on left, actions on right */}
+                        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-5 mb-5">
+                            {/* Left: Avatar + Name */}
+                            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 text-center sm:text-left">
+                                <Badge >
+                                    <Avatar
+                                        src={profile.avatar || undefined}
+                                        size={{ xs: 72, sm: 80, md: 96 }}
+                                        className="ring-4 ring-[#F8F9FE] dark:ring-[#1a1b26] bg-[#5B5CE2] transition-colors duration-300 shrink-0"
                                     >
-                                        Bỏ chặn
-                                    </Button>
-                                ) : (
-                                    <Text type="danger" className="font-bold flex items-center gap-1">
-                                        <ShieldAlert size={18} /> Bạn đã bị chặn
+                                        {profile.name?.charAt(0).toUpperCase()}
+                                    </Avatar>
+                                </Badge>
+                                <div className="pt-0 sm:pt-2">
+                                    <Title level={3} className="!mb-1 !text-xl md:!text-2xl">{profile.name}</Title>
+                                    <Text type="secondary" className="text-sm flex items-center gap-1.5 justify-center sm:justify-start">
+                                        <span className={`w-1.5 h-1.5 rounded-full ${profile.status === 'online' ? 'bg-green-500' : 'bg-gray-300'}`} />
+                                        {profile.status === 'online' ? 'Đang hoạt động' : 'Ngoại tuyến'}
                                     </Text>
-                                )
-                            ) : isAccepted ? (
-                                <>
-                                    <Button 
-                                        type="primary" 
-                                        icon={<MessageSquare size={18} />} 
-                                        className="rounded-xl font-bold shadow-none"
-                                        onClick={handleMessage}
-                                    >
-                                        Nhắn tin
-                                    </Button>
-                                    <Button 
-                                        icon={<UserMinus size={18} />} 
-                                        className="rounded-xl font-bold"
-                                        onClick={unfriend}
-                                    >
-                                        Hủy kết bạn
-                                    </Button>
-                                </>
-                            ) : isPending ? (
-                                amIRequester ? (
-                                    <Button 
-                                        icon={<UserMinus size={18} />} 
-                                        className="rounded-xl font-bold"
-                                        onClick={rejectRequest}
-                                    >
-                                        Hủy yêu cầu
-                                    </Button>
-                                ) : (
-                                    <>
-                                        <Button 
-                                            type="primary" 
-                                            icon={<UserCheck size={18} />} 
-                                            className="rounded-xl font-bold shadow-none"
-                                            onClick={acceptRequest}
+                                </div>
+                            </div>
+
+                            {/* Right: Action Buttons */}
+                            <div className="flex flex-wrap items-center justify-center sm:justify-end gap-2 shrink-0">
+                                {isBlocked ? (
+                                    amIBlocker ? (
+                                        <Button
+                                            danger
+                                            icon={<Shield size={16} />}
+                                            className="rounded-xl font-bold"
+                                            onClick={unblockUser}
                                         >
-                                            Chấp nhận
+                                            Bỏ chặn
                                         </Button>
-                                        <Button 
-                                            icon={<UserMinus size={18} />} 
+                                    ) : (
+                                        <Text type="danger" className="font-bold flex items-center gap-1">
+                                            <ShieldAlert size={16} /> Bạn đã bị chặn
+                                        </Text>
+                                    )
+                                ) : isAccepted ? (
+                                    <>
+                                        <Button
+                                            type="primary"
+                                            icon={<MessageSquare size={16} />}
+                                            className="rounded-xl font-bold shadow-none"
+                                            onClick={() => navigate('/chats')}
+                                        >
+                                            Nhắn tin
+                                        </Button>
+                                        <Button
+                                            icon={<UserMinus size={16} />}
+                                            className="rounded-xl font-bold"
+                                            onClick={unfriend}
+                                        >
+                                            Hủy kết bạn
+                                        </Button>
+                                    </>
+                                ) : isPending ? (
+                                    amIRequester ? (
+                                        <Button
+                                            icon={<UserMinus size={16} />}
                                             className="rounded-xl font-bold"
                                             onClick={rejectRequest}
                                         >
-                                            Từ chối
+                                            Hủy yêu cầu
                                         </Button>
-                                    </>
-                                )
-                            ) : (
-                                <Button 
-                                    type="primary" 
-                                    icon={<UserPlus size={18} />} 
-                                    className="rounded-xl font-bold shadow-none"
-                                    onClick={sendRequest}
-                                    loading={loadingFriendship}
-                                >
-                                    Thêm bạn
-                                </Button>
-                            )}
-                            
-                            {!isBlocked && (
-                                <Button 
-                                    danger 
-                                    type="text" 
-                                    icon={<ShieldAlert size={18} />} 
-                                    className="rounded-xl"
-                                    onClick={blockUser}
-                                />
-                            )}
-                        </Space>
-                    </div>
+                                    ) : (
+                                        <>
+                                            <Button
+                                                type="primary"
+                                                icon={<UserCheck size={16} />}
+                                                className="rounded-xl font-bold shadow-none"
+                                                onClick={acceptRequest}
+                                            >
+                                                Chấp nhận
+                                            </Button>
+                                            <Button
+                                                icon={<UserMinus size={16} />}
+                                                className="rounded-xl font-bold"
+                                                onClick={rejectRequest}
+                                            >
+                                                Từ chối
+                                            </Button>
+                                        </>
+                                    )
+                                ) : (
+                                    <Button
+                                        type="primary"
+                                        icon={<UserPlus size={16} />}
+                                        className="rounded-xl font-bold shadow-none"
+                                        onClick={sendRequest}
+                                        loading={loadingFriendship}
+                                    >
+                                        Thêm bạn
+                                    </Button>
+                                )}
 
-                    <div>
-                        <Title level={5} className="mb-2!">Tiểu sử</Title>
-                        <Paragraph className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed mb-0">
-                            {profile.bio || 'Chưa có tiểu sử'}
-                        </Paragraph>
+                                {!isBlocked && (
+                                    <Button
+                                        danger
+                                        type="text"
+                                        icon={<ShieldAlert size={16} />}
+                                        className="rounded-xl"
+                                        onClick={blockUser}
+                                        title="Chặn người dùng"
+                                    />
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Bio */}
+                        <div>
+                            <Title level={5} className="!mb-2">Tiểu sử</Title>
+                            <Paragraph className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed mb-0">
+                                {profile.bio || 'Chưa có tiểu sử'}
+                            </Paragraph>
+                        </div>
                     </div>
                 </Card>
 

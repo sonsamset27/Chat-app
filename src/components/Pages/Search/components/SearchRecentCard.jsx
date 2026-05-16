@@ -35,33 +35,43 @@ const SearchRecentCard = ({ user }) => {
         >
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                    <Avatar 
-                        src={(user.avatar || user.photoURL) ? (user.avatar || user.photoURL) : undefined} 
-                        size={48} 
-                        shape="square" 
+                    <Avatar
+                        src={(user.avatar || user.photoURL) ? (user.avatar || user.photoURL) : undefined}
+                        size={48}
+                        shape="square"
                         className={`rounded-xl ${!(user.avatar || user.photoURL) ? 'bg-[#5B5CE2] flex items-center justify-center font-bold text-white' : ''}`}
                     >
                         {(user.displayName || user.name)?.charAt(0)?.toUpperCase() || '?'}
                     </Avatar>
-                    <div className="max-w-[200px]">
-                        <Title level={5} className="!mb-0 !text-sm truncate">{user.name}</Title>
-                        <Text type="secondary" className="text-xs mt-0.5 block truncate" title={user.bio}>
+                    <div className="max-w-[200px] min-w-0">
+                        <Title
+                            level={5}
+                            className="!mb-0 !text-sm !truncate"
+                        >
+                            {user.name}
+                        </Title>
+
+                        <Text
+                            type="secondary"
+                            className="block !truncate text-xs mt-0.5 !max-w-[120px]"
+                            title={user.bio}
+                        >
                             {user.bio || 'Chưa có tiểu sử'}
                         </Text>
                     </div>
                 </div>
                 <Space size="middle">
                     {friendship?.status === 'accepted' ? (
-                        <Button 
-                            type="text" 
-                            icon={<MessageSquarePlus size={18} />} 
-                            className="text-gray-400 hover:text-[#5B5CE2] hover:bg-blue-50" 
+                        <Button
+                            type="text"
+                            icon={<MessageSquarePlus size={18} />}
+                            className="text-gray-400 hover:text-[#5B5CE2] hover:bg-blue-50"
                             onClick={handleMessage}
                         />
                     ) : friendship?.status === 'pending' ? (
                         friendship.requesterId === user.userId ? (
-                            <Button 
-                                type="primary" 
+                            <Button
+                                type="primary"
                                 className="rounded-lg text-xs font-bold shadow-none px-4"
                                 onClick={(e) => { e.stopPropagation(); acceptRequest(); }}
                                 loading={loading}
@@ -72,15 +82,15 @@ const SearchRecentCard = ({ user }) => {
                             <Button disabled type="text" className="text-xs">Đã gửi</Button>
                         )
                     ) : (
-                        <Button 
-                            type="text" 
-                            icon={<UserPlus size={18} />} 
+                        <Button
+                            type="text"
+                            icon={<UserPlus size={18} />}
                             className="text-gray-400 hover:text-[#5B5CE2] hover:bg-blue-50"
                             onClick={handleAddFriend}
                             loading={requesting || loading}
                         />
                     )}
-                    
+
                     <Button className="rounded-lg text-xs font-bold text-gray-600" onClick={handleViewProfile}>
                         Trang cá nhân
                     </Button>
