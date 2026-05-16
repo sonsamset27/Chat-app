@@ -48,21 +48,22 @@ const Profile = () => {
                 >
                     {/* Avatar + Name row */}
                     <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 mb-5">
-                        {/* Avatar with status dot */}
-                        <div className="relative shrink-0">
+                        {/* Avatar with status dot — w-fit ensures the relative container matches the avatar size */}
+                        <div className="relative shrink-0 w-fit">
                             <Avatar
                                 src={avatarUrl || undefined}
                                 size={{ xs: 72, sm: 80, md: 88 }}
-                                className="ring-4 ring-gray-50 dark:ring-gray-800 bg-[#5B5CE2] shadow-sm transition-all duration-300"
+                                className="ring-4 ring-gray-50 dark:ring-gray-800 bg-[#5B5CE2] shadow-sm"
                             >
                                 {displayName.charAt(0).toUpperCase()}
                             </Avatar>
-
-                            <div className="absolute bottom-1 right-1 flex items-center justify-center">
+                            
+                            {/* Status Dot — using % for better scaling across responsive sizes */}
+                            <div className="absolute bottom-[4%] right-[4%] flex items-center justify-center">
                                 {status === 'online' && (
-                                    <span className="absolute w-full h-full rounded-full bg-emerald-500 animate-ping opacity-75" />
+                                    <span className="absolute w-full h-full rounded-full bg-emerald-500 animate-ping opacity-40" />
                                 )}
-                                <span className={`relative w-4 h-4 rounded-full border-[2.5px] border-white dark:border-gray-900 shadow-sm ${status === 'online' ? 'bg-emerald-500' : 'bg-gray-400'}`} />
+                                <span className={`relative w-3.5 h-3.5 md:w-4 md:h-4 rounded-full border-[2.5px] border-white dark:border-gray-900 shadow-sm ${status === 'online' ? 'bg-emerald-500' : 'bg-gray-400'}`} />
                             </div>
                         </div>
 
