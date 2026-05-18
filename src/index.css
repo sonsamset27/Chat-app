@@ -1,9 +1,28 @@
 @import "tailwindcss";
-@custom-variant dark (&:is(.dark *));
+@custom-variant dark (&:where(.dark, .dark *));
 
 /* Use dynamic viewport height to handle mobile browsers (Safari) */
 html, body, #root {
     height: 100%;
+}
+
+html {
+    color-scheme: light;
+}
+
+html.dark {
+    color-scheme: dark;
+}
+
+body {
+    background-color: #F8F9FE;
+    color: #1f2937;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+html.dark body {
+    background-color: #1a1b26;
+    color: #f3f4f6;
 }
 
 /* Ant Design Layout overrides */

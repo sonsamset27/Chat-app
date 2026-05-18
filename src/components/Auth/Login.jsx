@@ -345,7 +345,8 @@ const Login = () => {
                         <Button
                             onClick={handleGoogleLogin}
                             loading={loading}
-                            className="h-12 bg-[#EEF0FF] text-[#5B5CE2] border-none rounded-xl text-sm font-semibold hover:bg-blue-100 flex items-center justify-center gap-2"
+                            style={{ backgroundColor: '#EEF0FF', color: '#5B5CE2' }}
+                            className="h-12 border-none rounded-xl text-sm font-semibold hover:!bg-blue-100 flex items-center justify-center gap-2"
                         >
                             <img
                                 src="https://www.svgrepo.com/show/475656/google-color.svg"
@@ -360,7 +361,8 @@ const Login = () => {
                         <Button
                             onClick={handleFacebookLogin}
                             loading={loading}
-                            className="h-12 bg-[#1877F2] text-white border-none rounded-xl text-sm font-semibold hover:bg-blue-600 flex items-center justify-center gap-2"
+                            style={{ backgroundColor: '#1877F2', color: '#ffffff' }}
+                            className="h-12 border-none rounded-xl text-sm font-semibold hover:!bg-blue-600 flex items-center justify-center gap-2"
                         >
                             <img
                                 src="https://www.svgrepo.com/show/475647/facebook-color.svg"

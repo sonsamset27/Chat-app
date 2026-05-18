@@ -92,16 +92,7 @@ const SearchRecentCard = ({ user }) => {
                         </Tooltip>
                     )}
 
-                    {/* View profile: icon on mobile, text on sm+ */}
-                    <Tooltip title="Trang cá nhân">
-                        <Button
-                            type="text"
-                            size="small"
-                            icon={<User size={16} />}
-                            className="sm:hidden text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg"
-                            onClick={handleViewProfile}
-                        />
-                    </Tooltip>
+
                     <Button
                         size="small"
                         className="hidden sm:inline-flex rounded-lg text-xs font-bold text-gray-600 dark:text-gray-300"

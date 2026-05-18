@@ -4,12 +4,6 @@ import { CheckCheck, MoreVertical, Trash2 } from 'lucide-react'
 import { Typography, Image, Avatar, Spin, Popconfirm, Button } from 'antd'
 
 const { Text } = Typography
-
-/**
- * MessListCard Component
- * Renders individual messages in the chat interface.
- * Handles three types: 'text', 'image', and 'system'.
- */
 const MessListCard = ({ message, isSender, highlight = '', onDelete }) => {
     const { type, text, url, createdAt, id } = message
     const time = createdAt ? dayjs(createdAt.toDate()).format('h:mm A') : ''

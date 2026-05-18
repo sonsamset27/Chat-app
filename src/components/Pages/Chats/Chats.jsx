@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { Avatar, Badge, Input, Button, Typography, Spin, Empty, Upload, Popover, Popconfirm, message } from 'antd'
+import { Avatar, Badge, Input, Button, Typography, Spin, Empty, Upload, Popover, Popconfirm, message, Drawer } from 'antd'
 import { Search, Paperclip, Smile, Send, User, Users, ChevronUp, Info, Trash2, ArrowLeft } from 'lucide-react'
 import { useAuth } from '../../../Context/AuthContext'
 import useConversations from '../../../hooks/useConversations'
@@ -7,10 +7,12 @@ import useMessages from '../../../hooks/useMessages'
 import useUploadImage from '../../../hooks/useUploadImage'
 import ChatFriendListCard from './components/ChatFriendListCard'
 import MessListCard from './components/MessListCard'
+import GroupListCard from './components/GroupListCard'
 import CreateGroupModal from './components/CreateGroupModal'
 import GroupDetailsModal from './components/GroupDetailsModal'
 import EmojiPicker from 'emoji-picker-react'
 import { useNavigate } from 'react-router-dom'
+import { useTheme } from '../../../Context/ThemeContext'
 
 import { db } from '../../../firebase/config'
 import { doc, onSnapshot, updateDoc, deleteDoc } from 'firebase/firestore'
@@ -19,6 +21,15 @@ const { Text, Title } = Typography
 
 const Chats = () => {
     const { currentUser } = useAuth()
+    const { effectiveTheme } = useTheme()
+    const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768)
+    const [isEmojiDrawerOpen, setIsEmojiDrawerOpen] = useState(false)
+
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth < 768)
+        window.addEventListener('resize', handleResize)
+        return () => window.removeEventListener('resize', handleResize)
+    }, [])
     const { conversations, loading: loadingConvs } = useConversations()
     const [activeConvId, setActiveConvId] = useState(() => localStorage.getItem('activeConvId') || null)
     const [searchText, setSearchText] = useState('')
@@ -355,15 +366,26 @@ const Chats = () => {
                             ) : (
                                 messages
                                     .filter(msg => !messageSearchText || (msg.text && msg.text.toLowerCase().includes(messageSearchText.toLowerCase())))
-                                    .map((msg) => (
-                                        <MessListCard
-                                            key={msg.id}
-                                            message={msg}
-                                            isSender={msg.senderId === currentUser?.uid}
-                                            highlight={messageSearchText}
-                                            onDelete={() => deleteMessage(msg.id)}
-                                        />
-                                    ))
+                                    .map((msg) => {
+                                        const isSender = msg.senderId === currentUser?.uid
+                                        return activeConversation?.isGroup ? (
+                                            <GroupListCard
+                                                key={msg.id}
+                                                message={msg}
+                                                isSender={isSender}
+                                                highlight={messageSearchText}
+                                                onDelete={() => deleteMessage(msg.id)}
+                                            />
+                                        ) : (
+                                            <MessListCard
+                                                key={msg.id}
+                                                message={msg}
+                                                isSender={isSender}
+                                                highlight={messageSearchText}
+                                                onDelete={() => deleteMessage(msg.id)}
+                                            />
+                                        )
+                                    })
                             )}
                             <div ref={messagesEndRef} className="h-2" />
                         </div>
@@ -404,20 +426,51 @@ const Chats = () => {
                                         onPressEnter={handleSend}
                                         className="h-10 md:h-11 rounded-2xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-4 pr-10 text-sm md:text-[15px]"
                                     />
-                                    <Popover
-                                        content={
-                                            <EmojiPicker
-                                                onEmojiClick={(emojiData) => setInputMsg(prev => prev + emojiData.emoji)}
-                                                theme="auto"
-                                            />
-                                        }
-                                        trigger="click"
-                                        placement="topLeft"
-                                    >
-                                        <button className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-indigo-500 transition border-none bg-transparent cursor-pointer">
-                                            <Smile size={17} />
-                                        </button>
-                                    </Popover>
+                                    {!isMobile ? (
+                                        <Popover
+                                            content={
+                                                <EmojiPicker
+                                                    onEmojiClick={(emojiData) => setInputMsg(prev => prev + emojiData.emoji)}
+                                                    theme={effectiveTheme === 'dark' ? 'dark' : 'light'}
+                                                    width={350}
+                                                    height={400}
+                                                />
+                                            }
+                                            trigger="click"
+                                            placement="topLeft"
+                                            overlayInnerStyle={{ padding: 0 }}
+                                        >
+                                            <button className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-indigo-500 transition border-none bg-transparent cursor-pointer">
+                                                <Smile size={17} />
+                                            </button>
+                                        </Popover>
+                                    ) : (
+                                        <>
+                                            <button 
+                                                onClick={() => setIsEmojiDrawerOpen(true)}
+                                                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-indigo-500 transition border-none bg-transparent cursor-pointer"
+                                            >
+                                                <Smile size={17} />
+                                            </button>
+                                            <Drawer
+                                                title="Biểu cảm"
+                                                placement="bottom"
+                                                onClose={() => setIsEmojiDrawerOpen(false)}
+                                                open={isEmojiDrawerOpen}
+                                                height={380}
+                                                styles={{ body: { padding: 0, display: 'flex', justifyContent: 'center', overflow: 'hidden' } }}
+                                            >
+                                                <EmojiPicker
+                                                    onEmojiClick={(emojiData) => setInputMsg(prev => prev + emojiData.emoji)}
+                                                    theme={effectiveTheme === 'dark' ? 'dark' : 'light'}
+                                                    width="100%"
+                                                    height="100%"
+                                                    skinTonesDisabled
+                                                    previewConfig={{ showPreview: false }}
+                                                />
+                                            </Drawer>
+                                        </>
+                                    )}
                                 </div>
 
                                 {/* Send button */}

@@ -49,16 +49,7 @@ const ProfileFriendList = ({ friends }) => {
                             onClick={() => navigate('/chats')}
                             title="Nhắn tin"
                         />
-                        {/* Icon-only on mobile */}
-                        <Tooltip title="Trang cá nhân">
-                            <Button
-                                type="text"
-                                size="small"
-                                icon={<User size={16} />}
-                                className="sm:hidden text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg"
-                                onClick={() => navigate(`/profile/${friend.userId}`)}
-                            />
-                        </Tooltip>
+
                         {/* Full text on sm+ */}
                         <Button
                             size="small"
